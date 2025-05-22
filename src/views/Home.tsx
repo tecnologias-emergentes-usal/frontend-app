@@ -76,6 +76,9 @@ export function Home(props: Props) {
         <Link to="/view">
           <ListItem title="Navigate" label link />
         </Link>
+        <Link to="/icons">
+          <ListItem title="SVG Icons Demo" label link />
+        </Link>
       </List>
     </Page>
   );

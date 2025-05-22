@@ -7,67 +7,48 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-
-    /* overridden to match with konsta ui default */
-    --primary: 211 100% 51%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
+    /* Light mode HorusAlert palette */
+    --background: #FFFFFF;
+    --card: #F4F4F4;
+    --primary: #388E3C;
+    --primary-foreground: #FFFFFF;
+    --secondary: #616161;
+    --secondary-foreground: #FFFFFF;
+    --foreground: #212121;
+    --accent: #FF9800;
+    --accent-foreground: #FFFFFF;
+    --muted: #F4F4F4;
+    --muted-foreground: #616161;
+    --destructive: #FF9800;
+    --destructive-foreground: #FFFFFF;
+    --border: #E0E0E0;
+    --input: #F4F4F4;
+    --ring: #388E3C;
+    --popover: #FFFFFF;
+    --popover-foreground: #212121;
 
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    /* overridden to match with konsta ui default */
-    --primary: 211 100% 51%;
-    --primary-foreground: 240 5.9% 10%;
-
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --background: #121212;
+    --card: #1E1E1E;
+    --primary: #2E7D32;
+    --primary-foreground: #FFFFFF;
+    --secondary: #BDBDBD;
+    --secondary-foreground: #FFFFFF;
+    --foreground: #FFFFFF;
+    --accent: #FFB74D;
+    --accent-foreground: #121212;
+    --muted: #1E1E1E;
+    --muted-foreground: #BDBDBD;
+    --destructive: #FFB74D;
+    --destructive-foreground: #121212;
+    --border: #333333;
+    --input: #1E1E1E;
+    --ring: #2E7D32;
+    --popover: #121212;
+    --popover-foreground: #FFFFFF;
   }
 }
 
