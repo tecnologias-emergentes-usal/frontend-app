@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes } from "react-router-dom";
 import { useLayoutEffect, useState } from "react";
-import { View } from "@/views/View";
-import { Home } from "@/views/Home";
 import { App } from "konsta/react";
+import { AuthProvider } from "@/lib/auth";
+import { AuthRoutes, ProtectedRoutes } from "@/routes";
 
 export default function Root() {
   const [theme, setTheme] = useState<"ios" | "material">("material");
@@ -24,12 +24,14 @@ export default function Root() {
 
   return (
     <BrowserRouter>
-      <App safeAreas theme={theme}>
-        <Routes>
-          <Route path="/" element={<Home theme={theme} onTheme={setTheme} />} />
-          <Route path="/view" element={<View />} />
-        </Routes>
-      </App>
+      <AuthProvider>
+        <App safeAreas theme={theme}>
+          <Routes>
+            {AuthRoutes}
+            {ProtectedRoutes({ theme, onTheme: setTheme })}
+          </Routes>
+        </App>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
