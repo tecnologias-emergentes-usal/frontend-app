@@ -9,6 +9,15 @@ module.exports = konstaConfig({
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
+  
+  konsta: {
+    colors: {
+      primary: "#388E3C",
+      secondary: "#616161",
+      background: "#FFFFFF",
+      card: "#F4F4F4",
+    },
+  },
   prefix: "",
   theme: {
     container: {
@@ -20,38 +29,37 @@ module.exports = konstaConfig({
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+        // Light mode HorusAlert palette
+        background: "#FFFFFF", // Fondo principal
+        card: "#F4F4F4", // Fondo secundario (tarjetas/paneles)
+        /*primary: {
+          DEFAULT: "#388E3C", // Color de énfasis/acento (USAL verde claro/moderno)
+          foreground: "#FFFFFF", // White text on primary
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#616161", // Texto secundario/iconos secundarios
+          foreground: "#FFFFFF",
         },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+        */
+        foreground: "#212121", // Texto principal
+        accent: {
+          DEFAULT: "#FF9800", // Color de alertas/notificaciones
+          foreground: "#FFFFFF",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#F4F4F4", 
+          foreground: "#616161", // Texto secundario
         },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+        destructive: {
+          DEFAULT: "#FF9800", // Using accent color for destructive actions
+          foreground: "#FFFFFF",
         },
+        border: "#E0E0E0",
+        input: "#F4F4F4",
+        ring: "#388E3C",
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#FFFFFF",
+          foreground: "#212121",
         },
       },
       borderRadius: {
