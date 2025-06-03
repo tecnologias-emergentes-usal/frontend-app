@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
+import {
   ListInput,
   Button,
   BlockFooter,
@@ -22,7 +22,7 @@ export function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
+
     try {
       await login(email, password);
       // Successful login will redirect via GuestGuard
@@ -37,7 +37,7 @@ export function Login() {
         clear
         outline
         onClick={() => navigate("/")}
-        className="self-start p-2 rounded-lg mb-6 w-fit"
+        className="w-auto h-auto p-1 rounded-lg mb-6 flex-shrink-0 self-start"
       >
         <ArrowLeftIcon width={20} height={20} />
       </Button>
@@ -64,9 +64,7 @@ export function Login() {
               <EnvelopeClosedIcon width={24} height={24} />
             }
           />
-        </List>
-        
-        <List strongIos insetIos>
+
           <div className="relative">
             <ListInput
               label="Contraseña"
@@ -92,48 +90,54 @@ export function Login() {
               )}
             </button>
           </div>
-        </List>
-
-        <Block className="flex justify-end p-0">
-          <Button 
-            clear 
-            className="text-secondary p-0 m-0"
-            onClick={() => navigate("/forgot-password")}
+          <div className="flex justify-end items-end">
+            <Button
+              clear
+              disabled
+              className="!w-fit text-primary hover:text-primary/80 font-medium decoration-1 underline-offset-4 text-sm p-0"
+              onClick={() => navigate("/forgot-password")}
+            >
+              ¿Olvidaste tu contraseña?
+            </Button>
+          </div>
+          <div className="space-y-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-primary text-white rounded-lg py-3 px-4 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
           >
-            ¿Olvidaste tu contraseña?
-          </Button>
-        </Block>
+            {loading ? "Cargando..." : "Iniciar Sesión"}
+          </button>
+        </div>
+        </List>
 
         {error && (
           <BlockFooter className="text-red-500">
             {error}
           </BlockFooter>
         )}
-        
-        <div className="space-y-4 mt-6">
-          <Button
-            large
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full text-white"
-          >
-            {loading ? "Cargando..." : "Iniciar Sesión"}
-          </Button>
-        </div>
-
-        <Block className="text-center p-0 mt-6">
-          <p className="text-secondary">
-            ¿No tienes una cuenta?{" "}
-            <Button 
-              clear 
-              className="text-secondary font-medium p-0 m-0"
-              onClick={() => navigate("/register")}
-            >
-              Regístrate
-            </Button>
-          </p>
-        </Block>
       </form>
+
+      {/* Divider */}
+      <div className="flex items-center my-6">
+        <div className="flex-1 border-t border-gray-200"></div>
+        <span className="px-4 text-sm text-gray-500">o</span>
+        <div className="flex-1 border-t border-gray-200"></div>
+      </div>
+
+      {/* Register Section */}
+      <Block className="text-center bg-gray-50 rounded-lg px-6">
+        <p className="text-gray-600 mb-2">
+          ¿No tienes una cuenta?
+        </p>
+        <Button
+          clear
+          className="text-primary font-semibold hover:text-primary/80 bg-white border border-primary/20 rounded-md py-2 px-4 transition-colors"
+          onClick={() => navigate("/register")}
+        >
+          Regístrate aquí
+        </Button>
+      </Block>
     </>
   );
 } 

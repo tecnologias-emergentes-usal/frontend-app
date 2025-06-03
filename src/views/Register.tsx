@@ -44,7 +44,7 @@ export function Register() {
         clear
         outline
         onClick={() => navigate("/")}
-        className="self-start p-2 rounded-lg mb-6 w-fit"
+        className="w-auto h-auto p-1 rounded-lg mb-6 flex-shrink-0 self-start"
       >
         <ArrowLeftIcon width={20} height={20} />
       </Button>

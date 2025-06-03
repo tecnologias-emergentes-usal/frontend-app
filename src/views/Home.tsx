@@ -29,7 +29,7 @@ export function Home(props: Props) {
 
   return (
     <Page>
-      <Navbar title="React Native" large transparent centerTitle />
+      <Navbar title="USAL Alert" large transparent centerTitle />
       <BlockTitle>Theme</BlockTitle>
 
       <List strong inset>

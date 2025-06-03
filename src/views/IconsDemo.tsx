@@ -1,5 +1,5 @@
 import { Page, Navbar, Block, BlockTitle } from "konsta/react";
-import { SurveillanceIconExample, AlertExample } from "@/components";
+import { SurveillanceIconExample } from "@/components";
 
 export function IconsDemo() {
   return (
@@ -10,7 +10,6 @@ export function IconsDemo() {
       <SurveillanceIconExample />
       
       <BlockTitle className="text-foreground">Color Palette</BlockTitle>
-      <AlertExample />
       
       <Block>
         <BlockTitle className="text-foreground">Color Swatches</BlockTitle>
