@@ -81,6 +81,14 @@ Primero clona el repositorio:
 git clone https://github.com/tecnologias-emergentes-usal/frontend-app
 ```
 
+Configura las variables de entorno:
+
+```console
+cp .env.example .env
+```
+
+> **Importante**: Debes crear el archivo `.env` basado en `.env.example` y configurar las variables necesarias antes de ejecutar la aplicación.
+
 Instala todas las dependencias:
 
 ```console
