@@ -47,4 +47,8 @@ export interface PredictionsNotificationContextType {
   error: string | null;
   lastUpdated: Date | null;
   refetch: () => Promise<void>;
+  // Parking-specific data
+  totalParkingSpaces: number;
+  // System status
+  systemStatus: 'active' | 'inactive' | 'error';
 }
