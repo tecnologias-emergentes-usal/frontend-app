@@ -97,7 +97,7 @@ export function Home(props: Props) {
   };
 
   return (
-    <Page className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
+    <Page className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen overflow-y-auto">
       <Navbar 
         title="USAL Parking Monitor" 
         large 
@@ -106,43 +106,51 @@ export function Home(props: Props) {
         className="text-slate-800 dark:text-slate-200"
       />
       
-      <div className="p-4 space-y-6">
+      <div className="p-3 sm:p-4 space-y-4 sm:space-y-6 pb-24">
         {/* Header con tiempo y estado */}
-        <div className="flex items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
-          <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+          <div className="flex items-center justify-between w-full sm:w-auto mb-2 sm:mb-0">
             <div className="flex items-center space-x-2">
-              <EyeOpenIcon className="w-5 h-5 text-primary" />
-              <span className="font-semibold text-slate-800 dark:text-slate-200">
+              <div className="relative">
+                <EyeOpenIcon className={`w-5 h-5 ${
+                  systemStatus === 'error' ? 'text-red-500' : 
+                  systemStatus === 'inactive' ? 'text-yellow-500' : 
+                  'text-green-500'
+                }`} />
+                <DotFilledIcon className={`absolute -top-1 -right-1 w-2.5 h-2.5 ${
+                  systemStatus === 'active' ? 'animate-pulse' : 'hidden'
+                } ${
+                  systemStatus === 'error' ? 'text-red-500' : 
+                  systemStatus === 'inactive' ? 'text-yellow-500' : 
+                  'text-green-500'
+                }`} />
+              </div>
+              <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm sm:text-base">
                 {systemStatus === 'error' ? 'Sistema con Error' : 
                  systemStatus === 'inactive' ? 'Conectando Sistema...' : 
                  'Sistema Activo'}
               </span>
             </div>
-            <div className="flex items-center space-x-1">
-              <DotFilledIcon className={`w-4 h-4 ${systemStatus === 'active' ? 'animate-pulse' : ''} ${
-                systemStatus === 'error' ? 'text-red-500' : 
-                systemStatus === 'inactive' ? 'text-yellow-500' : 
-                'text-green-500'
-              }`} />
-              <ActivityLogIcon className={`w-4 h-4 ${
-                systemStatus === 'error' ? 'text-red-500' : 
-                systemStatus === 'inactive' ? 'text-yellow-500' : 
-                'text-green-500'
-              }`} />
+            
+            <div className="sm:hidden flex items-center space-x-2 text-slate-600 dark:text-slate-400">
+              <ClockIcon className="w-4 h-4" />
+              <span className="font-mono text-sm">
+                {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}
+              </span>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-400">
+          <div className="hidden sm:flex items-center space-x-2 text-slate-600 dark:text-slate-400">
             <ClockIcon className="w-4 h-4" />
             <span className="font-mono text-sm">
-              {currentTime.toLocaleTimeString()}
+              {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}
             </span>
           </div>
         </div>
 
         {/* Video Stream */}
-        <div className="relative bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl border border-slate-200/50 dark:border-slate-700/50">
-          <div className="bg-gradient-to-r from-primary/20 to-accent/20 p-4">
+        <div className="relative bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl border border-slate-200/50 dark:border-slate-700/50 mt-4 sm:mt-0">
+          <div className="bg-gradient-to-r from-primary/20 to-accent/20 p-3 sm:p-4">
             <div className="flex items-center space-x-2">
               <VideoIcon className="w-6 h-6 text-primary" />
               <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
@@ -154,14 +162,14 @@ export function Home(props: Props) {
             </p>
           </div>
           
-          <div className="relative aspect-video bg-slate-100 dark:bg-slate-900">
+          <div className="relative bg-slate-100 dark:bg-slate-900 w-full rounded-b-2xl h-[50vh] max-h-[500px] sm:h-[65vh] sm:max-h-[700px]">
             {hasStreamError ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                <div className="mb-4">
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6 text-center">
+                <div className="mb-3 sm:mb-4">
                   <img 
                     src="/images/technical-difficulties.svg" 
                     alt="Robot con dificultades técnicas" 
-                    className="w-40 h-40 mx-auto opacity-80"
+                    className="w-24 h-24 sm:w-36 sm:h-36 mx-auto opacity-80"
                   />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -192,17 +200,18 @@ export function Home(props: Props) {
                 <img
                   src={STREAM_URL}
                   alt="Stream de monitoreo en vivo"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   onLoad={handleStreamLoad}
                   onError={handleStreamError}
+                  style={{ maxHeight: '100%', maxWidth: '100%' }}
                 />
                 
                 {/* Overlay con información */}
-                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-lg text-xs font-mono">
+                <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-black/60 backdrop-blur-sm text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[10px] sm:text-xs font-mono z-10">
                   LIVE • {currentTime.toLocaleString()}
                 </div>
                 
-                <div className="absolute top-3 right-3 bg-green-500/90 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold">
+                <div className="absolute top-3 right-3 bg-green-500/90 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold z-10">
                   🔴 EN VIVO
                 </div>
               </>
