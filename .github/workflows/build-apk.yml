@@ -39,6 +39,9 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
+      - name: Mostrar versión de Java
+        run: java -version
+
       - name: Configurar Android SDK
         uses: android-actions/setup-android@v3
 
