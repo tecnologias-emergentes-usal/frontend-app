@@ -1,0 +1,55 @@
+name: Buildear APK # NOTA: El buildeo se hace cada vez que se pushea un nuevo tag al repositorio
+
+on:
+  push:
+    tags:
+      - '*' # Se activa en cualquier tag, como v1.0.0, demo, etc.
+
+jobs:
+  build-apk:
+    name: Buildear APK y subirla a GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Instalar dependencias
+        run: pnpm install
+
+      - name: Buildear frontend
+        run: pnpm run build
+
+      - name: Sync Capacitor con Android
+        run: pnpm run sync
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Buildear APK
+        run: |
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Subir APK a GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
