@@ -1,9 +1,7 @@
-// Importación de componentes UI y tipos
-import { Card, CardContent, CardHeader, CardTitle, Badge, Car, MapPin, Activity } from "@/components/basic-ui"
-import type { Prediction, NotificationResponse } from "@/types/notifications"
-import type { ParkingSpace } from "@/types/notifications"
+import { Card, CardContent, CardHeader, CardTitle, Badge, Car, MapPin, Activity } from "../components/basic-ui"
+import type { Prediction, NotificationResponse } from "../types/notifications"
+import type { ParkingSpace } from "../types/notifications"
 
-// Definición de las props del componente principal
 interface ParkingLotViewProps {
   notifications?: NotificationResponse | null
   totalSpaces?: number
@@ -11,7 +9,7 @@ interface ParkingLotViewProps {
   gridRows?: number
 }
 
-// Mock data para pruebas o demostración visual, simula respuestas de detección
+// Mock data para demostración - solo cuando no hay datos reales
 const mockNotifications: NotificationResponse = {
   predictions: [
     { x1: 50, y1: 30, x2: 150, y2: 80, confidence: 0.95, class_id: 0, class_name: "car" },
@@ -25,48 +23,42 @@ const mockNotifications: NotificationResponse = {
   ],
 }
 
-// Componente principal ParkingLotView
 export default function ParkingLotView({
   notifications = mockNotifications,
   totalSpaces = 36,
   gridCols = 6,
   gridRows = 6,
 }: ParkingLotViewProps) {
-
-  /**
-   * Genera un arreglo con la información de cada espacio de estacionamiento
-   * incluyendo posición, dimensiones y separación por rejas/barriers.
-   */
+  // Generar grid de espacios de estacionamiento con espaciado correcto para las rejas
   const generateParkingSpaces = (): ParkingSpace[] => {
     const spaces: ParkingSpace[] = []
     const spaceWidth = 80
     const spaceHeight = 40
     const spacing = 20
-    const barrierHeight = 20 // Alto extra para cada reja separadora
+    const barrierHeight = 20 // Espacio que ocupa cada reja + margen
 
     for (let row = 0; row < gridRows; row++) {
       for (let col = 0; col < gridCols; col++) {
         const id = row * gridCols + col + 1
         const x = col * (spaceWidth + spacing) + 30
 
-        // Calcula la posición vertical considerando las rejas según sección
-        let y = 30 // Margen superior inicial
+        // Calcular Y considerando las rejas
+        let y = 30 // Posición inicial
 
         if (row < 2) {
-          // Sección A (primeras 2 filas), sin reja aún
+          // Sección A (filas 0-1): posición normal
           y += row * (spaceHeight + spacing)
         } else if (row < 4) {
-          // Sección B (filas 2 y 3), después de la primera reja
+          // Sección B (filas 2-3): después de la primera reja
           y += 2 * (spaceHeight + spacing) + barrierHeight
           y += (row - 2) * (spaceHeight + spacing)
         } else {
-          // Sección C (filas 4 y 5), después de dos rejas
-          y += 2 * (spaceHeight + spacing) + barrierHeight // Primer tramo + reja 1
-          y += 2 * (spaceHeight + spacing) + barrierHeight // Segundo tramo + reja 2
+          // Sección C (filas 4-5): después de ambas rejas
+          y += 2 * (spaceHeight + spacing) + barrierHeight // Primera sección + reja 1
+          y += 2 * (spaceHeight + spacing) + barrierHeight // Segunda sección + reja 2
           y += (row - 4) * (spaceHeight + spacing)
         }
 
-        // Agrega el espacio al array
         spaces.push({
           id,
           x,
@@ -81,71 +73,123 @@ export default function ParkingLotView({
     return spaces
   }
 
-  // Genera la grilla de espacios
+  // Generar espacios
   const parkingSpaces = generateParkingSpaces()
 
-  // Calcula el alto necesario para el SVG basado en la última fila más su altura
+  // Calcular altura necesaria del SVG basándose en los espacios
   const maxY = Math.max(...parkingSpaces.map((space) => space.y + space.height))
-  const svgHeight = maxY + 50 // Deja margen inferior
+  const svgHeight = maxY + 50 // Agregar margen inferior
 
-  /**
-   * Verifica si el centroide de una predicción cae dentro de los límites
-   * de un espacio de estacionamiento determinado, marcándolo como ocupado si corresponde.
-   */
+  // Función para determinar si un espacio está ocupado basado en las predicciones REALES
   const checkSpaceOccupancy = (
     space: ParkingSpace,
     predictions: Prediction[],
-  ): { occupied: boolean; confidence?: number } => {
+  ): { occupied: boolean; confidence?: number; prediction?: Prediction } => {
     for (const prediction of predictions) {
       const predictionCenterX = (prediction.x1 + prediction.x2) / 2
       const predictionCenterY = (prediction.y1 + prediction.y2) / 2
 
-      // Si el centroide cae dentro del rectángulo del espacio, lo marca como ocupado
+      // Verificar si el centro de la predicción está dentro del espacio de estacionamiento
       if (
         predictionCenterX >= space.x &&
         predictionCenterX <= space.x + space.width &&
         predictionCenterY >= space.y &&
         predictionCenterY <= space.y + space.height
       ) {
-        return { occupied: true, confidence: prediction.confidence }
+        return { occupied: true, confidence: prediction.confidence, prediction }
       }
     }
     return { occupied: false }
   }
 
-  // Mapea cada espacio con su estado de ocupación según las predicciones actuales
+  // Aplicar las predicciones REALES a los espacios
   const parkingSpacesWithOccupancy = parkingSpaces.map((space) => {
     const occupancy = checkSpaceOccupancy(space, notifications?.predictions || [])
     return {
       ...space,
       occupied: occupancy.occupied,
       confidence: occupancy.confidence,
+      prediction: occupancy.prediction,
     }
   })
 
-  // Estadísticas para los KPIs
   const occupiedSpaces = parkingSpacesWithOccupancy.filter((space) => space.occupied).length
   const availableSpaces = totalSpaces - occupiedSpaces
   const occupancyRate = Math.round((occupiedSpaces / totalSpaces) * 100)
 
-  /**
-   * Calcula la posición vertical (y) donde se dibuja una reja, según el índice de la fila después de la cual debe aparecer.
-   */
+  // Calcular posiciones de las rejas basadas en los espacios reales
   const getBarrierPosition = (afterRow: number): number => {
     const spacesInRow = parkingSpacesWithOccupancy.filter((space) => Math.floor((space.id - 1) / gridCols) === afterRow)
     if (spacesInRow.length > 0) {
-      return spacesInRow[0].y + 40 + 10 // Al final del espacio, más un margen
+      return spacesInRow[0].y + 40 + 10 // Después del espacio + margen
     }
     return 0
   }
 
-  // Posiciones verticales de las dos rejas separadoras
-  const barrier1Y = getBarrierPosition(1) // Tras la fila 1
-  const barrier2Y = getBarrierPosition(3) // Tras la fila 3
+  const barrier1Y = getBarrierPosition(1) // Después de la fila 1 (índice 1)
+  const barrier2Y = getBarrierPosition(3) // Después de la fila 3 (índice 3)
+
+  // Estadísticas de debugging
+  const totalPredictions = notifications?.predictions?.length || 0
+  const predictionsWithoutSpace =
+    notifications?.predictions?.filter((prediction) => {
+      const predictionCenterX = (prediction.x1 + prediction.x2) / 2
+      const predictionCenterY = (prediction.y1 + prediction.y2) / 2
+
+      return !parkingSpaces.some(
+        (space) =>
+          predictionCenterX >= space.x &&
+          predictionCenterX <= space.x + space.width &&
+          predictionCenterY >= space.y &&
+          predictionCenterY <= space.y + space.height,
+      )
+    }) || []
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
-      {/* Estadísticas rápidas de ocupación */}
+      {/* Debug Info - Mostrar análisis de mapeo */}
+      {notifications && (
+        <Card className="bg-yellow-50 border-yellow-200">
+          <CardContent className="p-4">
+            <div className="text-sm text-yellow-800">
+              <p className="font-medium mb-2">📊 Análisis de Detecciones</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="font-medium">Total Predicciones:</p>
+                  <p className="text-lg">{totalPredictions}</p>
+                </div>
+                <div>
+                  <p className="font-medium">Espacios Ocupados:</p>
+                  <p className="text-lg">{occupiedSpaces}</p>
+                </div>
+                <div>
+                  <p className="font-medium">Predicciones Sin Mapear:</p>
+                  <p className="text-lg">{predictionsWithoutSpace.length}</p>
+                </div>
+                <div>
+                  <p className="font-medium">Eficiencia de Mapeo:</p>
+                  <p className="text-lg">
+                    {totalPredictions > 0 ? Math.round((occupiedSpaces / totalPredictions) * 100) : 0}%
+                  </p>
+                </div>
+              </div>
+              {predictionsWithoutSpace.length > 0 && (
+                <div className="mt-2">
+                  <p className="font-medium text-red-600">⚠️ Predicciones fuera del área de estacionamiento:</p>
+                  {predictionsWithoutSpace.map((pred, idx) => (
+                    <p key={idx} className="text-xs">
+                      Centro: ({Math.round((pred.x1 + pred.x2) / 2)}, {Math.round((pred.y1 + pred.y2) / 2)}) -
+                      Confianza: {Math.round(pred.confidence * 100)}%
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Estadísticas */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -196,13 +240,12 @@ export default function ParkingLotView({
         </Card>
       </div>
 
-      {/* Plano SVG visual del estacionamiento */}
+      {/* Plano del Estacionamiento */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <MapPin className="h-5 w-5" />
             <span>Plano del Estacionamiento - Sector A</span>
-            {/* Badge de ocupación (cambia color según porcentaje) */}
             <Badge variant={occupancyRate > 80 ? "destructive" : occupancyRate > 60 ? "default" : "secondary"}>
               {occupancyRate}% Ocupado
             </Badge>
@@ -216,7 +259,7 @@ export default function ParkingLotView({
               viewBox={`0 0 700 ${svgHeight}`}
               className="border-2 border-gray-300 rounded bg-white"
             >
-              {/* Grid de fondo como referencia */}
+              {/* Líneas de referencia del estacionamiento */}
               <defs>
                 <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
                   <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f0f0f0" strokeWidth="1" />
@@ -224,16 +267,31 @@ export default function ParkingLotView({
               </defs>
               <rect width="100%" height="100%" fill="url(#grid)" />
 
-              {/* Dibuja cada espacio de estacionamiento */}
+              {/* Mostrar todas las predicciones como rectángulos semi-transparentes */}
+              {notifications?.predictions?.map((prediction, index) => (
+                <rect
+                  key={`prediction-${index}`}
+                  x={prediction.x1}
+                  y={prediction.y1}
+                  width={prediction.x2 - prediction.x1}
+                  height={prediction.y2 - prediction.y1}
+                  fill="rgba(255, 165, 0, 0.3)"
+                  stroke="orange"
+                  strokeWidth="2"
+                  strokeDasharray="5,5"
+                />
+              ))}
+
+              {/* Espacios de estacionamiento */}
               {parkingSpacesWithOccupancy.map((space) => (
                 <g key={space.id}>
-                  {/* Rectángulo que representa el espacio */}
+                  {/* Rectángulo del espacio */}
                   <rect
                     x={space.x}
                     y={space.y}
                     width={space.width}
                     height={space.height}
-                    fill={space.occupied ? "#fee2e2" : "#f0fdf4"} // Color según ocupado/libre
+                    fill={space.occupied ? "#fee2e2" : "#f0fdf4"}
                     stroke={space.occupied ? "#dc2626" : "#16a34a"}
                     strokeWidth="2"
                     rx="4"
@@ -251,10 +309,9 @@ export default function ParkingLotView({
                     {space.id}
                   </text>
 
-                  {/* Icono y confianza si está ocupado */}
+                  {/* Icono de auto si está ocupado */}
                   {space.occupied && (
                     <>
-                      {/* Rectángulo como icono de auto */}
                       <rect
                         x={space.x + 15}
                         y={space.y + space.height / 2 + 5}
@@ -263,7 +320,6 @@ export default function ParkingLotView({
                         fill="#dc2626"
                         rx="7"
                       />
-                      {/* Porcentaje de confianza de la predicción */}
                       <text
                         x={space.x + space.width / 2}
                         y={space.y + space.height - 8}
@@ -278,8 +334,7 @@ export default function ParkingLotView({
                 </g>
               ))}
 
-              {/* Dibuja las rejas/barriers separadoras */}
-              {/* Reja 1 después de la fila 2 */}
+              {/* Rejas */}
               <g key="barrier-1">
                 <rect x="20" y={barrier1Y} width="600" height="8" fill="#6b7280" rx="2" />
                 <rect x="20" y={barrier1Y + 1} width="600" height="2" fill="#9ca3af" rx="1" />
@@ -297,7 +352,6 @@ export default function ParkingLotView({
                 ))}
               </g>
 
-              {/* Reja 2 después de la fila 4 */}
               <g key="barrier-2">
                 <rect x="20" y={barrier2Y} width="600" height="8" fill="#6b7280" rx="2" />
                 <rect x="20" y={barrier2Y + 1} width="600" height="2" fill="#9ca3af" rx="1" />
@@ -314,10 +368,22 @@ export default function ParkingLotView({
                   />
                 ))}
               </g>
+
+              {/* Entrada del estacionamiento */}
+              <rect x="10" y={svgHeight / 2 - 20} width="15" height="40" fill="#3b82f6" rx="2" />
+              <text
+                x="5"
+                y={svgHeight / 2 + 5}
+                fontSize="10"
+                fill="#3b82f6"
+                transform={`rotate(-90, 5, ${svgHeight / 2 + 5})`}
+              >
+                ENTRADA
+              </text>
             </svg>
           </div>
 
-          {/* Leyenda visual de colores y símbolos */}
+          {/* Leyenda */}
           <div className="mt-4 flex flex-wrap gap-4 text-sm">
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 bg-green-100 border-2 border-green-500 rounded"></div>
@@ -328,18 +394,26 @@ export default function ParkingLotView({
               <span>Espacio Ocupado</span>
             </div>
             <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 bg-blue-500 rounded"></div>
+              <span>Entrada</span>
+            </div>
+            <div className="flex items-center space-x-2">
               <div className="w-4 h-2 bg-gray-500 rounded"></div>
               <span>Reja Separadora</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-orange-500 border-dashed bg-orange-100 opacity-50 rounded"></div>
+              <span>Área de Detección</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Sección de detecciones activas (autos detectados) */}
+      {/* Detecciones Activas */}
       {notifications?.predictions && notifications.predictions.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Detecciones Activas</CardTitle>
+            <CardTitle>Detecciones Activas ({notifications.predictions.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -350,7 +424,8 @@ export default function ParkingLotView({
                     <p className="font-medium">{prediction.class_name}</p>
                     <p className="text-sm text-gray-500">Confianza: {Math.round(prediction.confidence * 100)}%</p>
                     <p className="text-xs text-gray-400">
-                      Pos: ({Math.round(prediction.x1)}, {Math.round(prediction.y1)})
+                      Centro: ({Math.round((prediction.x1 + prediction.x2) / 2)},{" "}
+                      {Math.round((prediction.y1 + prediction.y2) / 2)})
                     </p>
                   </div>
                 </div>
