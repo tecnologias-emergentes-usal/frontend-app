@@ -52,3 +52,13 @@ export interface PredictionsNotificationContextType {
   // System status
   systemStatus: 'active' | 'inactive' | 'error';
 }
+
+export interface ParkingSpace {
+  id: number
+  x: number
+  y: number
+  width: number
+  height: number
+  occupied: boolean
+  confidence?: number
+}
