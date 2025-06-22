@@ -1,25 +1,18 @@
-import { Block, BlockTitle, Navbar, NavbarBackLink, Page } from "konsta/react";
-import { useNavigate } from "react-router-dom";
+import ParkingLotView from "./ParkingLotView";
 
-export function View() {
-  const navigate = useNavigate();
 
+export default function ParkingView() {
   return (
-    <Page>
-      <Navbar
-        title="Other View"
-        left={<NavbarBackLink onClick={() => navigate("/")} />}
-      />
+    <main className="min-h-screen bg-gray-100 py-8">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Sistema de Monitoreo de Estacionamiento</h1>
+          <p className="text-gray-600">Visualización en tiempo real de espacios disponibles y ocupados</p>
+        </div>
 
-      <BlockTitle>Other view</BlockTitle>
+        <ParkingLotView />
+      </div>
+    </main>
+  )
+} 
 
-      <Block strong inset className="space-y-4">
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam odit
-          magni a sit hic possimus ab unde voluptatum nisi labore, minus sint
-          quas blanditiis totam molestiae culpa corrupti corporis nemo?
-        </p>
-      </Block>
-    </Page>
-  );
-}

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Robot face -->
+  <rect x="50" y="50" width="100" height="80" rx="10" fill="#4A5568" stroke="#2D3748" stroke-width="2"/>
+  
+  <!-- Robot eyes (X_X) -->
+  <g stroke="#E53E3E" stroke-width="3" stroke-linecap="round">
+    <line x1="70" y1="70" x2="80" y2="80"/>
+    <line x1="80" y1="70" x2="70" y2="80"/>
+    <line x1="120" y1="70" x2="130" y2="80"/>
+    <line x1="130" y1="70" x2="120" y2="80"/>
+  </g>
+  
+  <!-- Robot mouth (sad) -->
+  <path d="M 80 110 Q 100 95 120 110" stroke="#E53E3E" stroke-width="2" fill="none"/>
+  
+  <!-- Robot antennae -->
+  <line x1="80" y1="50" x2="80" y2="30" stroke="#4A5568" stroke-width="2"/>
+  <line x1="120" y1="50" x2="120" y2="30" stroke="#4A5568" stroke-width="2"/>
+  <circle cx="80" cy="30" r="3" fill="#E53E3E"/>
+  <circle cx="120" cy="30" r="3" fill="#E53E3E"/>
+  
+  <!-- Robot body -->
+  <rect x="60" y="130" width="80" height="50" rx="5" fill="#4A5568" stroke="#2D3748" stroke-width="2"/>
+  
+  <!-- Robot arms -->
+  <rect x="30" y="140" width="30" height="10" rx="5" fill="#4A5568"/>
+  <rect x="140" y="140" width="30" height="10" rx="5" fill="#4A5568"/>
+  
+  <!-- Screws -->
+  <circle cx="70" cy="160" r="2" fill="#2D3748"/>
+  <circle cx="130" cy="160" r="2" fill="#2D3748"/>
+  
+  <!-- Error symbols floating around -->
+  <text x="25" y="40" font-family="monospace" font-size="12" fill="#E53E3E">ERROR</text>
+  <text x="155" y="60" font-family="monospace" font-size="10" fill="#E53E3E">404</text>
+  <text x="15" y="120" font-family="monospace" font-size="8" fill="#E53E3E">FAIL</text>
+  <text x="170" y="140" font-family="monospace" font-size="8" fill="#E53E3E">OOPS</text>
+  
+  <!-- Warning symbols -->
+  <polygon points="35,100 45,100 40,90" fill="#F6E05E" stroke="#D69E2E" stroke-width="1"/>
+  <text x="38" y="98" font-family="Arial" font-size="8" fill="#D69E2E">!</text>
+  
+  <polygon points="175,100 185,100 180,90" fill="#F6E05E" stroke="#D69E2E" stroke-width="1"/>
+  <text x="178" y="98" font-family="Arial" font-size="8" fill="#D69E2E">!</text>
+</svg> 

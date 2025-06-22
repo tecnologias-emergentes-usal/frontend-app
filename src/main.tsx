@@ -3,6 +3,10 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import React from "react";
 import "./app.css";
+import { validateEnv } from "./lib/env";
+
+// Validar variables de entorno al inicio
+validateEnv();
 
 defineCustomElements(window);
 
