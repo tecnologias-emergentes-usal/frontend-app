@@ -84,10 +84,33 @@ git clone https://github.com/tecnologias-emergentes-usal/frontend-app
 Configura las variables de entorno:
 
 ```console
-cp .env.example .env
+# Crea el archivo .env con las variables necesarias
+touch .env
 ```
 
-> **Importante**: Debes crear el archivo `.env` basado en `.env.example` y configurar las variables necesarias antes de ejecutar la aplicación.
+> **Importante**: Debes crear el archivo `.env` y configurar las variables necesarias antes de ejecutar la aplicación.
+
+### Variables de Entorno Requeridas
+
+Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+
+```bash
+# Variables de Entorno - USAL Parking Monitor
+
+# URL del streaming de video del estacionamiento
+VITE_STREAMING_URL=https://097c-190-105-0-25.ngrok-free.app/video
+
+# Configuración del sistema de notificaciones (opcional)
+# VITE_POLLING_INTERVAL=3000
+
+# Configuración del estacionamiento (opcional) 
+# VITE_TOTAL_PARKING_SPACES=45
+```
+
+**Variables Importantes:**
+- `VITE_STREAMING_URL`: URL del servidor de streaming de video para el monitoreo del estacionamiento
+- `VITE_POLLING_INTERVAL`: Intervalo en millisegundos para actualizar las predicciones (por defecto: 3000ms)
+- `VITE_TOTAL_PARKING_SPACES`: Número total de espacios de estacionamiento (por defecto: 45)
 
 Instala todas las dependencias:
 

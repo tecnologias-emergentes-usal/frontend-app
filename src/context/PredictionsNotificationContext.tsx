@@ -2,6 +2,7 @@ import React, { createContext, useContext, ReactNode, useState, useEffect, useCa
 import { PredictionsNotificationContextType, NotificationResponse, Prediction } from '../types/notifications';
 import { NotificationService } from '../services/notificationService';
 import { useNotifications } from '../hooks/useNotifications';
+import { env } from '../lib/env';
 
 export const PredictionsNotificationContext = createContext<PredictionsNotificationContextType | undefined>(undefined);
 
@@ -12,17 +13,23 @@ interface PredictionsNotificationProviderProps {
 
 export const PredictionsNotificationProvider: React.FC<PredictionsNotificationProviderProps> = ({
   children,
-  pollingInterval = 3000
+  pollingInterval = env.POLLING_INTERVAL
 }) => {
   const [notifications, setNotifications] = useState<NotificationResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [totalParkingSpaces, setTotalParkingSpaces] = useState<number>(env.TOTAL_PARKING_SPACES);
   const { addNotification } = useNotifications();
+
+  // Calculate system status based on state
+  const systemStatus: 'active' | 'inactive' | 'error' = 
+    error ? 'error' : 
+    loading ? 'inactive' : 
+    'active';
 
   const fetchNotifications = useCallback(async () => {
     try {
-      setError(null);
       const data = await NotificationService.fetchNotifications();
       setNotifications(data);
       setLastUpdated(new Date());
@@ -46,6 +53,7 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
 
         // Add notification to queue with prediction data
         addNotification(title, message, "target", { predictions, uniqueClasses });
+        setError(null);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
@@ -78,7 +86,11 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
     loading,
     error,
     lastUpdated,
-    refetch
+    refetch,
+    // Parking-specific data
+    totalParkingSpaces,
+    // System status
+    systemStatus
   };
 
   return (
