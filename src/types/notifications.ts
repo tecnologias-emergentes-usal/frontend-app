@@ -8,7 +8,19 @@ export interface Prediction {
   class_name: string;
 }
 
+export interface CameraDetection {
+  cam_index: string;
+  predictions: Prediction[];
+}
+
 export interface NotificationResponse {
+  timestamp: string;
+  total_detections: number;
+  detections: CameraDetection[];
+}
+
+// Legacy interface for backward compatibility
+export interface LegacyNotificationResponse {
   predictions: Prediction[];
 }
 
@@ -51,6 +63,8 @@ export interface PredictionsNotificationContextType {
   totalParkingSpaces: number;
   // System status
   systemStatus: 'active' | 'inactive' | 'error';
+  // Total detections count
+  totalDetections: number;
 }
 
 export interface ParkingSpace {

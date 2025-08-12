@@ -1,11 +1,9 @@
 import { Route } from "react-router-dom";
-import { AuthGuard } from "@/lib/auth";
 import { NotificationProvider } from "@/context/NotificationContext";
-import { Home } from "@/views/Home";
-import { IconsDemo } from "@/views/IconsDemo";
+import { Home, IconsDemo } from "@/views/app";
 import { PredictionsNotificationProvider } from "@/context";
 import { MainLayout } from "@/layouts/MainLayout";
-import ParkingView from "@/views/View";
+import { AuthGuard } from "@/guards";
 
 interface ProtectedRoutesProps {
   theme: "ios" | "material";
@@ -42,15 +40,6 @@ export const ProtectedRoutes = ({ theme, onTheme }: ProtectedRoutesProps) => [
     element={
       <ProtectedWrapper>
         <Home theme={theme} onTheme={onTheme} />
-      </ProtectedWrapper>
-    }
-  />,
-  <Route
-    key="view"
-    path="/view"
-    element={
-      <ProtectedWrapper>
-        <ParkingView />
       </ProtectedWrapper>
     }
   />,

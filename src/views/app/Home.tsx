@@ -10,7 +10,8 @@ import {
   ArchiveIcon,
   EyeOpenIcon,
   ActivityLogIcon,
-  DotFilledIcon
+  DotFilledIcon,
+  ExclamationTriangleIcon
 } from "@radix-ui/react-icons";
 import { usePredictionsNotificationContext } from "@/context/PredictionsNotificationContext";
 import { env } from "@/lib/env";
@@ -97,16 +98,7 @@ export function Home(props: Props) {
   };
 
   return (
-    <Page className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
-      <Navbar 
-        title="USAL Parking Monitor" 
-        large 
-        transparent 
-        centerTitle 
-        className="text-slate-800 dark:text-slate-200"
-      />
-      
-      <div className="p-4 space-y-6">
+    <div className="space-y-6">
         {/* Header con tiempo y estado */}
         <div className="flex items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
           <div className="flex items-center space-x-3">
@@ -158,23 +150,17 @@ export function Home(props: Props) {
             {hasStreamError ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                 <div className="mb-4">
-                  <img 
-                    src="/images/technical-difficulties.svg" 
-                    alt="Robot con dificultades técnicas" 
-                    className="w-40 h-40 mx-auto opacity-80"
-                  />
+                  <ExclamationTriangleIcon className="w-12 h-12 mx-auto text-red-500 opacity-80" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  🔧 Dificultades Técnicas
+                  Error de Conexión
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                  Estamos experimentando problemas con la conexión de video.
-                  <br />
-                  Nuestro equipo técnico está trabajando para resolverlo.
+                  No se puede conectar con la cámara
                 </p>
                 <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-500">
                   <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span>Reconectando automáticamente...</span>
+                  <span>Reconectando...</span>
                 </div>
               </div>
             ) : (
@@ -287,9 +273,9 @@ export function Home(props: Props) {
                 }`}>
                   {systemStatus === 'error' ? '🔌 Error de Conexión' :
                    systemStatus === 'inactive' ? '⏳ Cargando Sistema...' :
-                   parkingStats.alertLevel === 'high' ? '🚨 Capacidad Crítica' : 
-                   parkingStats.alertLevel === 'medium' ? '⚠️ Capacidad Media' : 
-                   '✅ Capacidad Normal'}
+                   parkingStats.alertLevel === 'high' ? 'Capacidad Crítica' : 
+                   parkingStats.alertLevel === 'medium' ? 'Capacidad Media' : 
+                   'Capacidad Normal'}
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   {systemStatus === 'error' ? `Error: ${error}` :
@@ -318,7 +304,7 @@ export function Home(props: Props) {
         {/* Metadata Adicional */}
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
           <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
-            📊 Información del Sistema
+            Información del Sistema
           </h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
@@ -349,7 +335,6 @@ export function Home(props: Props) {
             </div>
           </div>
         </div>
-      </div>
-    </Page>
+    </div>
   );
 }
