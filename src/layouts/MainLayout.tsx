@@ -1,7 +1,12 @@
 import { ReactNode } from "react";
 import { Page } from "konsta/react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { HomeIcon, EyeOpenIcon, GearIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import {
+  HomeIcon,
+  EyeOpenIcon,
+  GearIcon,
+  MagnifyingGlassIcon,
+} from "@radix-ui/react-icons";
 import { UserButton, useUser } from "@clerk/clerk-react";
 
 interface MainLayoutProps {
@@ -40,20 +45,19 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <Page className="flex flex-col min-h-screen bg-background pb-safe">
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 rounded-b-3xl shadow-xl">
-        <div className="w-full max-w-md px-6 py-4">
+      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center">
+        <div className="w-full max-w-md px-6 py-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 rounded-b-3xl shadow-xl">
           <div className="relative flex items-center">
             {/* User Button - Left */}
-            <UserButton 
-              afterSignOutUrl="/"
+            <UserButton
               appearance={{
                 elements: {
                   avatarBox: "w-8 h-8",
                   userButtonPopoverCard: "shadow-lg",
-                }
+                },
               }}
             />
-            
+
             {/* Greeting - Absolutely centered */}
             <div className="absolute inset-0 flex items-center justify-center text-center pointer-events-none">
               <div>
@@ -65,11 +69,13 @@ export function MainLayout({ children }: MainLayoutProps) {
                 </p>
               </div>
             </div>
-            
+
             {/* Search Button - Right */}
-            <button 
+            <button
               className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ml-auto"
-              onClick={() => {/* TODO: Implement search */}}
+              onClick={() => {
+                /* TODO: Implement search */
+              }}
             >
               <MagnifyingGlassIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>

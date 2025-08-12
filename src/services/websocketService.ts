@@ -16,8 +16,9 @@ class PredictionsWebSocketService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 10;
   private isConnecting = false;
+  private authToken: string | null = null;
 
-  connect() {
+  connect(authToken?: string) {
     // Evitar múltiples conexiones simultáneas
     if (this.isConnecting || this.ws?.readyState === WebSocket.CONNECTING) {
       console.log('WebSocket already connecting, skipping...');
@@ -29,12 +30,23 @@ class PredictionsWebSocketService {
       return;
     }
 
+    // Store auth token if provided
+    if (authToken) {
+      this.authToken = authToken;
+    }
+
     this.cleanup();
     this.shouldReconnect = true;
     this.isConnecting = true;
     
     const baseUrl = env.API_URL;
-    const wsUrl = baseUrl.replace(/^http/, 'ws') + '/ws/predictions';
+    let wsUrl = baseUrl.replace(/^http/, 'ws') + '/api/v1/ws/predictions';
+    
+    // Add auth token as URL parameter if available
+    if (this.authToken) {
+      const separator = wsUrl.includes('?') ? '&' : '?';
+      wsUrl = `${wsUrl}${separator}token=${encodeURIComponent(this.authToken)}`;
+    }
     
     console.log(`Connecting to WebSocket (attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}):`, wsUrl);
     this.notifyStatus('connecting');
@@ -139,6 +151,18 @@ class PredictionsWebSocketService {
     this.shouldReconnect = true;
     this.disconnect();
     setTimeout(() => this.connect(), 1000);
+  }
+
+  // Método para actualizar token de autenticación
+  updateAuthToken(token: string | null) {
+    const tokenChanged = this.authToken !== token;
+    this.authToken = token;
+    
+    // Si el token cambió y estamos conectados, reconectar
+    if (tokenChanged && this.ws?.readyState === WebSocket.OPEN) {
+      console.log('Auth token updated, reconnecting WebSocket...');
+      this.reconnect();
+    }
   }
 
   onMessage(handler: MessageHandler) {

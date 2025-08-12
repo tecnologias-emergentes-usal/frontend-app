@@ -8,19 +8,9 @@ export interface Prediction {
   class_name: string;
 }
 
-export interface CameraDetection {
-  cam_index: string;
-  predictions: Prediction[];
-}
-
 export interface NotificationResponse {
+  cam_index: string;
   timestamp: string;
-  total_detections: number;
-  detections: CameraDetection[];
-}
-
-// Legacy interface for backward compatibility
-export interface LegacyNotificationResponse {
   predictions: Prediction[];
 }
 
@@ -31,7 +21,7 @@ export interface GenericNotification {
   message: string;
   icon: string;
   timestamp: Date;
-  data?: any; // Optional data payload
+  status?: 'info' | 'success' | 'warning' | 'error';
 }
 
 export interface NotificationDisplayState {
@@ -42,15 +32,8 @@ export interface NotificationDisplayState {
 // Generic notification context type
 export interface NotificationContextType {
   displayState: NotificationDisplayState;
-  addNotification: (title: string, message: string, icon: string, data?: any) => void;
+  addNotification: (title: string, message: string, icon: string, status?: 'info' | 'success' | 'warning' | 'error') => void;
   dismissCurrentNotification: () => void;
-}
-
-// Prediction-specific types
-export interface QueuedNotification {
-  id: string;
-  predictions: Prediction[];
-  timestamp: Date;
 }
 
 export interface PredictionsNotificationContextType {
@@ -59,20 +42,7 @@ export interface PredictionsNotificationContextType {
   error: string | null;
   lastUpdated: Date | null;
   refetch: () => Promise<void>;
-  // Parking-specific data
   totalParkingSpaces: number;
-  // System status
   systemStatus: 'active' | 'inactive' | 'error';
-  // Total detections count
   totalDetections: number;
-}
-
-export interface ParkingSpace {
-  id: number
-  x: number
-  y: number
-  width: number
-  height: number
-  occupied: boolean
-  confidence?: number
 }
