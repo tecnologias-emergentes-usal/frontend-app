@@ -11,9 +11,14 @@ import {
   EyeOpenIcon,
   ActivityLogIcon,
   DotFilledIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  GearIcon,
+  LockClosedIcon,
+  LockOpen1Icon,
+  UpdateIcon
 } from "@radix-ui/react-icons";
 import { usePredictionsNotificationContext } from "@/context/PredictionsNotificationContext";
+import { useBarrier } from "@/context/BarrierContext";
 import { env } from "@/lib/env";
 
 interface Props {
@@ -27,7 +32,7 @@ export function Home(props: Props) {
   const [hasStreamError, setHasStreamError] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   
-  // Get data from context
+  // Get data from contexts
   const { 
     notifications, 
     loading, 
@@ -36,6 +41,13 @@ export function Home(props: Props) {
     totalParkingSpaces,
     systemStatus 
   } = usePredictionsNotificationContext();
+  
+  const { 
+    lastAction: barrierAction, 
+    loading: barrierLoading, 
+    error: barrierError,
+    connectionStatus: barrierConnectionStatus 
+  } = useBarrier();
 
   // Calculate parking statistics from context data
   const occupiedSpots = notifications?.predictions?.length || 0;
@@ -197,7 +209,7 @@ export function Home(props: Props) {
         </div>
 
         {/* Estadísticas del Estacionamiento */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
             <div className="flex items-center space-x-2 mb-2">
               <ArchiveIcon className="w-5 h-5 text-red-500" />
@@ -249,6 +261,45 @@ export function Home(props: Props) {
                 </div>
                 <div className="text-xs text-slate-500 dark:text-slate-500">
                   {systemStatus === 'error' ? 'Error de conexión' : 'Cargando datos...'}
+                </div>
+              </>
+            )}
+          </div>
+          
+          {/* Estado de la Barrera */}
+          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+            <div className="flex items-center space-x-2 mb-2">
+              <GearIcon className="w-5 h-5 text-blue-500" />
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                Barrera
+              </span>
+            </div>
+            {barrierConnectionStatus === 'connected' && barrierAction ? (
+              <>
+                <div className="flex items-center justify-center h-8">
+                  {barrierAction.event === 'command_sent' ? (
+                    <UpdateIcon className="w-6 h-6 text-yellow-500 animate-spin" />
+                  ) : (
+                    barrierAction.barrier_state === 'abrir' ? 
+                      <LockOpen1Icon className="w-6 h-6 text-green-500" /> :
+                      <LockClosedIcon className="w-6 h-6 text-red-500" />
+                  )}
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-500">
+                  {barrierAction.event === 'command_sent' ? 
+                    `${barrierAction.barrier_action === 'abrir' ? 'abriendo' : 'cerrando'}...` :
+                    barrierAction.barrier_state === 'abrir' ? 'abierta' : 'cerrada'
+                  }
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-slate-400 dark:text-slate-600">
+                  --
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-500">
+                  {barrierError ? 'Error de conexión' : 
+                   barrierConnectionStatus === 'connecting' ? 'Conectando...' : 'Sin datos'}
                 </div>
               </>
             )}

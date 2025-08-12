@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import { PredictionsNotificationContextType, NotificationResponse, Prediction } from '../types/notifications';
 import { predictionsWebSocket } from '../services/websocketService';
 import { useNotifications } from '../hooks/useNotifications';
@@ -20,7 +20,7 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [totalParkingSpaces] = useState<number>(env.TOTAL_PARKING_SPACES);
   const [totalDetections, setTotalDetections] = useState<number>(0);
-  const [previousCarCount, setPreviousCarCount] = useState<number>(0);
+  const previousCarCountRef = useRef<number>(0);
   const { addNotification } = useNotifications();
   const { getToken } = useAuth();
 
@@ -34,14 +34,15 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
     console.log('Received WebSocket data:', data);
     
     const currentCarCount = data.predictions?.length || 0;
-    const carDifference = currentCarCount - previousCarCount;
+    const carDifference = currentCarCount - previousCarCountRef.current;
     
     setNotifications(data);
     setLastUpdated(new Date());
     setTotalDetections(currentCarCount);
     
     // Only notify about changes in car count
-    if (carDifference !== 0) {
+    console.log(previousCarCountRef.current);
+    if (previousCarCountRef.current > 0 && carDifference !== 0) {
       let title: string;
       let message: string;
       let status: 'info' | 'success' | 'warning' | 'error';
@@ -59,9 +60,9 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
       addNotification(title, message, "target", status);
     }
     
-    setPreviousCarCount(currentCarCount);
+    previousCarCountRef.current = currentCarCount;
     setError(null);
-  }, [addNotification, previousCarCount]);
+  }, [addNotification]);
 
   const refetch = useCallback(async () => {
     // Reconnect WebSocket to get fresh data
