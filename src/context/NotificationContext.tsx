@@ -1,5 +1,5 @@
 import React, { createContext, ReactNode, useState, useEffect, useCallback } from 'react';
-import { Notification, Chip } from 'konsta/react';
+import { Notification } from 'konsta/react';
 import { NotificationContextType, GenericNotification, NotificationDisplayState } from '../types/notifications';
 import { getIcon } from '../utils/iconDictionary';
 
@@ -28,14 +28,14 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   }, []);
 
   // Add notification to queue
-  const addNotification = useCallback((title: string, message: string, icon: string, data?: any) => {
+  const addNotification = useCallback((title: string, message: string, icon: string, status: 'info' | 'success' | 'warning' | 'error' = 'info') => {
     const newNotification: GenericNotification = {
       id: generateNotificationId(),
       title,
       message,
       icon,
       timestamp: new Date(),
-      data
+      status
     };
 
     setNotificationQueue(prev => [...prev, newNotification]);
@@ -98,39 +98,22 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     }, 300);
   }, []);
 
-  // Render subtitle based on data content
-  const renderSubtitle = (currentNotification: GenericNotification) => {
-    const { message, data } = currentNotification;
-    
-    // If we have prediction data, render chips
-    if (data?.predictions && data?.uniqueClasses) {
-      const predictions = data.predictions;
-      const uniqueClasses = data.uniqueClasses;
-      
-      return (
-        <div className="flex flex-wrap gap-1">
-          {uniqueClasses.map((className: string) => {
-            const count = predictions.filter((p: any) => p.class_name === className).length;
-            return (
-              <Chip
-                key={className}
-                colors={{
-                  fillBgIos: 'bg-indigo-500',
-                  fillTextIos: 'text-white',
-                  fillBgMaterial: 'bg-indigo-500',
-                  fillTextMaterial: 'text-white'
-                }}
-              >
-                {className} ({count})
-              </Chip>
-            );
-          })}
-        </div>
-      );
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case 'success': return 'text-green-500';
+      case 'warning': return 'text-yellow-500';
+      case 'error': return 'text-red-500';
+      default: return 'text-blue-500';
     }
-    
-    // Default message rendering
-    return message;
+  };
+
+  const getStatusBgColor = (status?: string) => {
+    switch (status) {
+      case 'success': return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
+      case 'warning': return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
+      case 'error': return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
+      default: return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
+    }
   };
 
   const value: NotificationContextType = {
@@ -146,15 +129,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       <div>
         <Notification
           opened={displayState.isVisible && displayState.currentNotification !== null}
-          icon={displayState.currentNotification ? getIcon(displayState.currentNotification.icon, "w-6 h-6 text-accent") : undefined}
+          icon={displayState.currentNotification ? getIcon(displayState.currentNotification.icon, `w-6 h-6 ${getStatusColor(displayState.currentNotification.status)}`) : undefined}
           title={displayState.currentNotification?.title || ''}
-          titleRightText={displayState.currentNotification?.data?.predictions ? 
-            `${displayState.currentNotification.data.predictions.length} objeto${displayState.currentNotification.data.predictions.length !== 1 ? 's' : ''}` : 
-            undefined
-          }
-          subtitle={displayState.currentNotification ? renderSubtitle(displayState.currentNotification) : ''}
-          text={displayState.currentNotification?.data?.predictions ? "" : undefined}
+          subtitle={displayState.currentNotification?.message || ''}
           onClick={dismissCurrentNotification}
+          className={displayState.currentNotification ? getStatusBgColor(displayState.currentNotification.status) : ''}
         />
       </div>
     </NotificationContext.Provider>

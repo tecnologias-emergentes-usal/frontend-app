@@ -7,6 +7,9 @@ export const env = {
   // URL del streaming de video
   STREAMING_URL: import.meta.env.VITE_STREAMING_URL || "https://097c-190-105-0-25.ngrok-free.app/video",
   
+  // URL del API backend
+  API_URL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+  
   // Configuración del sistema de predicciones
   POLLING_INTERVAL: Number(import.meta.env.VITE_POLLING_INTERVAL) || 3000,
   

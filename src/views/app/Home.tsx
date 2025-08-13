@@ -1,18 +1,19 @@
 import { useLayoutEffect, useState, useEffect } from "react";
-import {
-  Page,
-  Navbar,
-} from "konsta/react";
 import { 
-  VideoIcon, 
   ClockIcon, 
   PersonIcon, 
   ArchiveIcon,
   EyeOpenIcon,
   ActivityLogIcon,
-  DotFilledIcon
+  DotFilledIcon,
+  GearIcon,
+  LockClosedIcon,
+  LockOpen1Icon,
+  UpdateIcon
 } from "@radix-ui/react-icons";
 import { usePredictionsNotificationContext } from "@/context/PredictionsNotificationContext";
+import { useBarrier } from "@/context/BarrierContext";
+import { VideoStream } from "@/components/VideoStream";
 import { env } from "@/lib/env";
 
 interface Props {
@@ -22,11 +23,9 @@ interface Props {
 
 export function Home(props: Props) {
   const [darkMode, setDarkMode] = useState(false);
-  const [isStreamLoading, setIsStreamLoading] = useState(true);
-  const [hasStreamError, setHasStreamError] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   
-  // Get data from context
+  // Get data from contexts
   const { 
     notifications, 
     loading, 
@@ -35,25 +34,30 @@ export function Home(props: Props) {
     totalParkingSpaces,
     systemStatus 
   } = usePredictionsNotificationContext();
+  
+  const { 
+    lastAction: barrierAction, 
+    loading: barrierLoading, 
+    error: barrierError,
+    connectionStatus: barrierConnectionStatus 
+  } = useBarrier();
 
   // Calculate parking statistics from context data
+  const realTotal = barrierAction?.max_cars || totalParkingSpaces;
   const occupiedSpots = notifications?.predictions?.length || 0;
-  const availableSpots = Math.max(0, totalParkingSpaces - occupiedSpots);
-  const occupancyPercentage = totalParkingSpaces > 0 ? Math.round((occupiedSpots / totalParkingSpaces) * 100) : 0;
+  const availableSpots = Math.max(0, realTotal - occupiedSpots);
+  const occupancyPercentage = realTotal > 0 ? Math.round((occupiedSpots / realTotal) * 100) : 0;
   const alertLevel: 'low' | 'medium' | 'high' = 
     availableSpots < 5 ? 'high' : 
     availableSpots < 15 ? 'medium' : 'low';
 
   const parkingStats = {
-    totalSpots: totalParkingSpaces,
+    totalSpots: realTotal,
     occupiedSpots,
     availableSpots,
     lastUpdate: lastUpdated?.toLocaleTimeString() || new Date().toLocaleTimeString(),
     alertLevel
   };
-
-  // URL del streaming desde configuración centralizada
-  const STREAM_URL = env.STREAMING_URL;
 
   useLayoutEffect(() => {
     setDarkMode(document.documentElement.classList.contains("dark"));
@@ -67,16 +71,6 @@ export function Home(props: Props) {
 
     return () => clearInterval(timer);
   }, []);
-
-  const handleStreamLoad = () => {
-    setIsStreamLoading(false);
-    setHasStreamError(false);
-  };
-
-  const handleStreamError = () => {
-    setIsStreamLoading(false);
-    setHasStreamError(true);
-  };
 
   const getAlertColor = (level: string) => {
     switch (level) {
@@ -97,16 +91,7 @@ export function Home(props: Props) {
   };
 
   return (
-    <Page className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
-      <Navbar 
-        title="USAL Parking Monitor" 
-        large 
-        transparent 
-        centerTitle 
-        className="text-slate-800 dark:text-slate-200"
-      />
-      
-      <div className="p-4 space-y-6">
+    <div className="space-y-6">
         {/* Header con tiempo y estado */}
         <div className="flex items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
           <div className="flex items-center space-x-3">
@@ -140,78 +125,18 @@ export function Home(props: Props) {
           </div>
         </div>
 
-        {/* Video Stream */}
-        <div className="relative bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl border border-slate-200/50 dark:border-slate-700/50">
-          <div className="bg-gradient-to-r from-primary/20 to-accent/20 p-4">
-            <div className="flex items-center space-x-2">
-              <VideoIcon className="w-6 h-6 text-primary" />
-              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
-                Vista en Tiempo Real
-              </h2>
-            </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Estacionamiento Principal - Cámara 01
-            </p>
-          </div>
-          
-          <div className="relative aspect-video bg-slate-100 dark:bg-slate-900">
-            {hasStreamError ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                <div className="mb-4">
-                  <img 
-                    src="/images/technical-difficulties.svg" 
-                    alt="Robot con dificultades técnicas" 
-                    className="w-40 h-40 mx-auto opacity-80"
-                  />
-                </div>
-                <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  🔧 Dificultades Técnicas
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                  Estamos experimentando problemas con la conexión de video.
-                  <br />
-                  Nuestro equipo técnico está trabajando para resolverlo.
-                </p>
-                <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-500">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span>Reconectando automáticamente...</span>
-                </div>
-              </div>
-            ) : (
-              <>
-                {isStreamLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-900">
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
-                        Conectando con cámara...
-                      </p>
-                    </div>
-                  </div>
-                )}
-                <img
-                  src={STREAM_URL}
-                  alt="Stream de monitoreo en vivo"
-                  className="w-full h-full object-cover"
-                  onLoad={handleStreamLoad}
-                  onError={handleStreamError}
-                />
-                
-                {/* Overlay con información */}
-                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-lg text-xs font-mono">
-                  LIVE • {currentTime.toLocaleString()}
-                </div>
-                
-                <div className="absolute top-3 right-3 bg-green-500/90 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold">
-                  🔴 EN VIVO
-                </div>
-              </>
-            )}
-          </div>
+        {/* Video Streams */}
+        <div className="space-y-4">
+          <VideoStream 
+            predictions={notifications?.predictions}
+            cameraId="cam1"
+            cameraName="Entrada Principal - Cámara 01"
+            streamUrl={env.STREAMING_URL}
+          />
         </div>
 
         {/* Estadísticas del Estacionamiento */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
             <div className="flex items-center space-x-2 mb-2">
               <ArchiveIcon className="w-5 h-5 text-red-500" />
@@ -267,6 +192,45 @@ export function Home(props: Props) {
               </>
             )}
           </div>
+          
+          {/* Estado de la Barrera */}
+          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+            <div className="flex items-center space-x-2 mb-2">
+              <GearIcon className="w-5 h-5 text-blue-500" />
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                Barrera
+              </span>
+            </div>
+            {barrierConnectionStatus === 'connected' && barrierAction ? (
+              <>
+                <div className="flex items-center justify-center h-8">
+                  {barrierAction.event === 'command_sent' ? (
+                    <UpdateIcon className="w-6 h-6 text-yellow-500 animate-spin" />
+                  ) : (
+                    barrierAction.barrier_state === 'abrir' ? 
+                      <LockOpen1Icon className="w-6 h-6 text-green-500" /> :
+                      <LockClosedIcon className="w-6 h-6 text-red-500" />
+                  )}
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-500">
+                  {barrierAction.event === 'command_sent' ? 
+                    `${barrierAction.barrier_action === 'abrir' ? 'abriendo' : 'cerrando'}...` :
+                    barrierAction.barrier_state === 'abrir' ? 'abierta' : 'cerrada'
+                  }
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-slate-400 dark:text-slate-600">
+                  --
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-500">
+                  {barrierError ? 'Error de conexión' : 
+                   barrierConnectionStatus === 'connecting' ? 'Conectando...' : 'Sin datos'}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Indicador de Estado y Alerta */}
@@ -287,9 +251,9 @@ export function Home(props: Props) {
                 }`}>
                   {systemStatus === 'error' ? '🔌 Error de Conexión' :
                    systemStatus === 'inactive' ? '⏳ Cargando Sistema...' :
-                   parkingStats.alertLevel === 'high' ? '🚨 Capacidad Crítica' : 
-                   parkingStats.alertLevel === 'medium' ? '⚠️ Capacidad Media' : 
-                   '✅ Capacidad Normal'}
+                   parkingStats.alertLevel === 'high' ? 'Capacidad Crítica' : 
+                   parkingStats.alertLevel === 'medium' ? 'Capacidad Media' : 
+                   'Capacidad Normal'}
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   {systemStatus === 'error' ? `Error: ${error}` :
@@ -318,7 +282,7 @@ export function Home(props: Props) {
         {/* Metadata Adicional */}
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
           <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
-            📊 Información del Sistema
+            Información del Sistema
           </h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
@@ -349,7 +313,6 @@ export function Home(props: Props) {
             </div>
           </div>
         </div>
-      </div>
-    </Page>
+    </div>
   );
 }

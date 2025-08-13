@@ -1,10 +1,8 @@
 import { Route, Navigate } from "react-router-dom";
-import { GuestGuard } from "@/lib/auth";
-import { Welcome } from "@/views/Welcome";
-import { Login } from "@/views/Login";
-import { Register } from "@/views/Register";
+import { Welcome, Login, Register } from "@/views/auth";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { Outlet } from "react-router-dom";
+import { GuestGuard } from "@/guards";
 
 // Layout wrapper with GuestGuard
 const AuthLayoutWrapper = () => (
