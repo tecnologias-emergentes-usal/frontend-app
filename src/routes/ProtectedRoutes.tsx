@@ -1,11 +1,10 @@
 import { Route } from "react-router-dom";
-import { AuthGuard } from "@/lib/auth";
 import { NotificationProvider } from "@/context/NotificationContext";
-import { Home } from "@/views/Home";
-import { IconsDemo } from "@/views/IconsDemo";
+import { Home, IconsDemo } from "@/views/app";
 import { PredictionsNotificationProvider } from "@/context";
+import { BarrierProvider } from "@/context/BarrierContext";
 import { MainLayout } from "@/layouts/MainLayout";
-import ParkingView from "@/views/View";
+import { AuthGuard } from "@/guards";
 
 interface ProtectedRoutesProps {
   theme: "ios" | "material";
@@ -18,7 +17,8 @@ const ProtectedWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
     <AuthGuard>
       <NotificationProvider>
         <PredictionsNotificationProvider>
-          <MainLayout>
+          <BarrierProvider>
+            <MainLayout>
             {/* Notification Display - aparece flotante solo cuando hay notificaciones */}
             <div className="fixed top-4 left-4 right-4 z-50 pointer-events-none">
               <div className="pointer-events-auto">
@@ -27,7 +27,8 @@ const ProtectedWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
 
             {/* Contenido principal */}
             {children}
-          </MainLayout>
+            </MainLayout>
+          </BarrierProvider>
         </PredictionsNotificationProvider>
       </NotificationProvider>
     </AuthGuard>
@@ -42,15 +43,6 @@ export const ProtectedRoutes = ({ theme, onTheme }: ProtectedRoutesProps) => [
     element={
       <ProtectedWrapper>
         <Home theme={theme} onTheme={onTheme} />
-      </ProtectedWrapper>
-    }
-  />,
-  <Route
-    key="view"
-    path="/view"
-    element={
-      <ProtectedWrapper>
-        <ParkingView />
       </ProtectedWrapper>
     }
   />,

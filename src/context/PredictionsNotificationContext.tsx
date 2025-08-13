@@ -1,26 +1,28 @@
-import React, { createContext, useContext, ReactNode, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import { PredictionsNotificationContextType, NotificationResponse, Prediction } from '../types/notifications';
-import { NotificationService } from '../services/notificationService';
+import { predictionsWebSocket } from '../services/websocketService';
 import { useNotifications } from '../hooks/useNotifications';
+import { useAuth } from '@clerk/clerk-react';
 import { env } from '../lib/env';
 
 export const PredictionsNotificationContext = createContext<PredictionsNotificationContextType | undefined>(undefined);
 
 interface PredictionsNotificationProviderProps {
   children: ReactNode;
-  pollingInterval?: number;
 }
 
 export const PredictionsNotificationProvider: React.FC<PredictionsNotificationProviderProps> = ({
-  children,
-  pollingInterval = env.POLLING_INTERVAL
+  children
 }) => {
   const [notifications, setNotifications] = useState<NotificationResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [totalParkingSpaces, setTotalParkingSpaces] = useState<number>(env.TOTAL_PARKING_SPACES);
+  const [totalParkingSpaces] = useState<number>(env.TOTAL_PARKING_SPACES);
+  const [totalDetections, setTotalDetections] = useState<number>(0);
+  const previousCarCountRef = useRef<number>(0);
   const { addNotification } = useNotifications();
+  const { getToken } = useAuth();
 
   // Calculate system status based on state
   const systemStatus: 'active' | 'inactive' | 'error' = 
@@ -28,58 +30,100 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
     loading ? 'inactive' : 
     'active';
 
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const data = await NotificationService.fetchNotifications();
-      setNotifications(data);
-      setLastUpdated(new Date());
-
-      // Automatically create notifications for predictions
-      if (data?.predictions?.length) {
-        const predictions = data.predictions;
-        const uniqueClasses = [...new Set(predictions.map((p: Prediction) => p.class_name))];
-        
-        // Create a message with the detected objects
-        const objectCount = predictions.length;
-        const title = "Detecciones Activas";
-        
-        // Create chips for the subtitle
-        const classChips = uniqueClasses.map(className => {
-          const count = predictions.filter((p: Prediction) => p.class_name === className).length;
-          return `${className} (${count})`;
-        }).join(', ');
-        
-        const message = `${objectCount} objeto${objectCount !== 1 ? 's' : ''} detectado${objectCount !== 1 ? 's' : ''}: ${classChips}`;
-
-        // Add notification to queue with prediction data
-        addNotification(title, message, "target", { predictions, uniqueClasses });
-        setError(null);
+  const handlePredictionData = useCallback((data: NotificationResponse) => {
+    console.log('Received WebSocket data:', data);
+    
+    const currentCarCount = data.predictions?.length || 0;
+    const carDifference = currentCarCount - previousCarCountRef.current;
+    
+    setNotifications(data);
+    setLastUpdated(new Date());
+    setTotalDetections(currentCarCount);
+    
+    // Only notify about changes in car count
+    console.log(previousCarCountRef.current);
+    if (previousCarCountRef.current > 0 && carDifference !== 0) {
+      let title: string;
+      let message: string;
+      let status: 'info' | 'success' | 'warning' | 'error';
+      
+      if (carDifference > 0) {
+        title = "Nuevos Autos Detectados";
+        message = `${carDifference} auto${carDifference !== 1 ? 's' : ''} nuevo${carDifference !== 1 ? 's' : ''} en el estacionamiento`;
+        status = 'info';
+      } else {
+        title = "Autos Salieron";
+        message = `${Math.abs(carDifference)} auto${Math.abs(carDifference) !== 1 ? 's' : ''} salieron del estacionamiento`;
+        status = 'success';
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error occurred');
-      console.error('Error fetching notifications:', err);
-    } finally {
-      setLoading(false);
+      
+      addNotification(title, message, "target", status);
     }
+    
+    previousCarCountRef.current = currentCarCount;
+    setError(null);
   }, [addNotification]);
 
   const refetch = useCallback(async () => {
-    setLoading(true);
-    await fetchNotifications();
-  }, [fetchNotifications]);
+    // Reconnect WebSocket to get fresh data
+    predictionsWebSocket.reconnect();
+  }, []);
 
   useEffect(() => {
-    // Fetch initial data
-    fetchNotifications();
+    let unsubscribeMessage: (() => void) | undefined;
+    let unsubscribeError: (() => void) | undefined;
+    let unsubscribeStatus: (() => void) | undefined;
 
-    // Set up polling interval
-    const interval = setInterval(() => {
-      fetchNotifications();
-    }, pollingInterval);
+    const initializeWebSocket = async () => {
+      try {
+        // Get auth token from Clerk
+        const token = await getToken();
+        
+        // Subscribe to WebSocket events
+        unsubscribeMessage = predictionsWebSocket.onMessage(handlePredictionData);
+        
+        unsubscribeError = predictionsWebSocket.onError((err) => {
+          setError(err.message);
+          console.error('WebSocket error:', err);
+        });
+        
+        unsubscribeStatus = predictionsWebSocket.onStatusChange((status) => {
+          switch (status) {
+            case 'connecting':
+              setLoading(true);
+              break;
+            case 'connected':
+              setLoading(false);
+              setError(null);
+              break;
+            case 'disconnected':
+              setError('Disconnected from server');
+              break;
+            case 'error':
+              setError('Connection error');
+              break;
+          }
+        });
 
-    // Cleanup interval on unmount
-    return () => clearInterval(interval);
-  }, [fetchNotifications, pollingInterval]);
+        // Connect to WebSocket with auth token
+        predictionsWebSocket.connect(token || undefined);
+
+      } catch (err) {
+        console.error('Failed to initialize WebSocket with auth:', err);
+        setError('Authentication error');
+      }
+    };
+
+    initializeWebSocket();
+
+    // Cleanup on unmount
+    return () => {
+      unsubscribeMessage?.();
+      unsubscribeError?.();
+      unsubscribeStatus?.();
+      predictionsWebSocket.disconnect();
+    };
+  }, [handlePredictionData, getToken]);
 
   const value: PredictionsNotificationContextType = {
     notifications,
@@ -90,7 +134,9 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
     // Parking-specific data
     totalParkingSpaces,
     // System status
-    systemStatus
+    systemStatus,
+    // Total detections count
+    totalDetections
   };
 
   return (
@@ -106,4 +152,4 @@ export const usePredictionsNotificationContext = (): PredictionsNotificationCont
     throw new Error('usePredictionsNotificationContext must be used within a PredictionsNotificationProvider');
   }
   return context;
-}; 
+};
