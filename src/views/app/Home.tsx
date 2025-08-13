@@ -1,17 +1,11 @@
 import { useLayoutEffect, useState, useEffect } from "react";
-import {
-  Page,
-  Navbar,
-} from "konsta/react";
 import { 
-  VideoIcon, 
   ClockIcon, 
   PersonIcon, 
   ArchiveIcon,
   EyeOpenIcon,
   ActivityLogIcon,
   DotFilledIcon,
-  ExclamationTriangleIcon,
   GearIcon,
   LockClosedIcon,
   LockOpen1Icon,
@@ -19,6 +13,7 @@ import {
 } from "@radix-ui/react-icons";
 import { usePredictionsNotificationContext } from "@/context/PredictionsNotificationContext";
 import { useBarrier } from "@/context/BarrierContext";
+import { VideoStream } from "@/components/VideoStream";
 import { env } from "@/lib/env";
 
 interface Props {
@@ -28,8 +23,6 @@ interface Props {
 
 export function Home(props: Props) {
   const [darkMode, setDarkMode] = useState(false);
-  const [isStreamLoading, setIsStreamLoading] = useState(true);
-  const [hasStreamError, setHasStreamError] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   
   // Get data from contexts
@@ -50,23 +43,21 @@ export function Home(props: Props) {
   } = useBarrier();
 
   // Calculate parking statistics from context data
+  const realTotal = barrierAction?.max_cars || totalParkingSpaces;
   const occupiedSpots = notifications?.predictions?.length || 0;
-  const availableSpots = Math.max(0, totalParkingSpaces - occupiedSpots);
-  const occupancyPercentage = totalParkingSpaces > 0 ? Math.round((occupiedSpots / totalParkingSpaces) * 100) : 0;
+  const availableSpots = Math.max(0, realTotal - occupiedSpots);
+  const occupancyPercentage = realTotal > 0 ? Math.round((occupiedSpots / realTotal) * 100) : 0;
   const alertLevel: 'low' | 'medium' | 'high' = 
     availableSpots < 5 ? 'high' : 
     availableSpots < 15 ? 'medium' : 'low';
 
   const parkingStats = {
-    totalSpots: totalParkingSpaces,
+    totalSpots: realTotal,
     occupiedSpots,
     availableSpots,
     lastUpdate: lastUpdated?.toLocaleTimeString() || new Date().toLocaleTimeString(),
     alertLevel
   };
-
-  // URL del streaming desde configuración centralizada
-  const STREAM_URL = env.STREAMING_URL;
 
   useLayoutEffect(() => {
     setDarkMode(document.documentElement.classList.contains("dark"));
@@ -80,16 +71,6 @@ export function Home(props: Props) {
 
     return () => clearInterval(timer);
   }, []);
-
-  const handleStreamLoad = () => {
-    setIsStreamLoading(false);
-    setHasStreamError(false);
-  };
-
-  const handleStreamError = () => {
-    setIsStreamLoading(false);
-    setHasStreamError(true);
-  };
 
   const getAlertColor = (level: string) => {
     switch (level) {
@@ -144,68 +125,14 @@ export function Home(props: Props) {
           </div>
         </div>
 
-        {/* Video Stream */}
-        <div className="relative bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl border border-slate-200/50 dark:border-slate-700/50">
-          <div className="bg-gradient-to-r from-primary/20 to-accent/20 p-4">
-            <div className="flex items-center space-x-2">
-              <VideoIcon className="w-6 h-6 text-primary" />
-              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
-                Vista en Tiempo Real
-              </h2>
-            </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Estacionamiento Principal - Cámara 01
-            </p>
-          </div>
-          
-          <div className="relative aspect-video bg-slate-100 dark:bg-slate-900">
-            {hasStreamError ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                <div className="mb-4">
-                  <ExclamationTriangleIcon className="w-12 h-12 mx-auto text-red-500 opacity-80" />
-                </div>
-                <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Error de Conexión
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                  No se puede conectar con la cámara
-                </p>
-                <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-500">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span>Reconectando...</span>
-                </div>
-              </div>
-            ) : (
-              <>
-                {isStreamLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-900">
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
-                        Conectando con cámara...
-                      </p>
-                    </div>
-                  </div>
-                )}
-                <img
-                  src={STREAM_URL}
-                  alt="Stream de monitoreo en vivo"
-                  className="w-full h-full object-cover"
-                  onLoad={handleStreamLoad}
-                  onError={handleStreamError}
-                />
-                
-                {/* Overlay con información */}
-                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-lg text-xs font-mono">
-                  LIVE • {currentTime.toLocaleString()}
-                </div>
-                
-                <div className="absolute top-3 right-3 bg-green-500/90 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold">
-                  🔴 EN VIVO
-                </div>
-              </>
-            )}
-          </div>
+        {/* Video Streams */}
+        <div className="space-y-4">
+          <VideoStream 
+            predictions={notifications?.predictions}
+            cameraId="cam1"
+            cameraName="Entrada Principal - Cámara 01"
+            streamUrl={env.STREAMING_URL}
+          />
         </div>
 
         {/* Estadísticas del Estacionamiento */}
