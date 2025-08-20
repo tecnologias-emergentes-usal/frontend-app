@@ -9,7 +9,7 @@ export interface Prediction {
 }
 
 export interface NotificationResponse {
-  cam_index: string;
+  cam_index: number; // Corregido a number
   timestamp: string;
   predictions: Prediction[];
 }
@@ -36,8 +36,12 @@ export interface NotificationContextType {
   dismissCurrentNotification: () => void;
 }
 
+// Tipo para el contexto de notificaciones de predicciones actualizado
 export interface PredictionsNotificationContextType {
-  notifications: NotificationResponse | null;
+  // Objeto de notificaciones original, ahora representa un consolidado
+  notifications: { predictions: Prediction[] } | null;
+  // Nuevo: Array de predicciones por cámara
+  predictionsByCamera: Prediction[][];
   loading: boolean;
   error: string | null;
   lastUpdated: Date | null;

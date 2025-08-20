@@ -27,7 +27,8 @@ export function Home(props: Props) {
   
   // Get data from contexts
   const { 
-    notifications, 
+    predictionsByCamera, // Usamos el nuevo estado de predicciones por cámara
+    totalDetections,    // Usamos el total de detecciones ya calculado
     loading, 
     error, 
     lastUpdated, 
@@ -42,9 +43,9 @@ export function Home(props: Props) {
     connectionStatus: barrierConnectionStatus 
   } = useBarrier();
 
-  // Calculate parking statistics from context data
+  // Los cálculos de estadísticas ahora usan totalDetections directamente
   const realTotal = barrierAction?.max_cars || totalParkingSpaces;
-  const occupiedSpots = notifications?.predictions?.length || 0;
+  const occupiedSpots = totalDetections;
   const availableSpots = Math.max(0, realTotal - occupiedSpots);
   const occupancyPercentage = realTotal > 0 ? Math.round((occupiedSpots / realTotal) * 100) : 0;
   const alertLevel: 'low' | 'medium' | 'high' = 
@@ -63,7 +64,6 @@ export function Home(props: Props) {
     setDarkMode(document.documentElement.classList.contains("dark"));
   });
 
-  // Actualizar reloj cada segundo
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -125,17 +125,20 @@ export function Home(props: Props) {
           </div>
         </div>
 
-        {/* Video Streams */}
+        {/* Video Streams - Bucle para múltiples cámaras */}
         <div className="space-y-4">
-          <VideoStream 
-            predictions={notifications?.predictions}
-            cameraId="cam1"
-            cameraName="Entrada Principal - Cámara 01"
-            streamUrl={env.STREAMING_URL}
-          />
+          {Array.from({ length: env.CAMERA_COUNT }, (_, index) => (
+            <VideoStream 
+              key={index}
+              predictions={predictionsByCamera[index] || []}
+              cam_index={index}
+              cameraName={`Cámara ${index + 1}`}
+              streamUrl={`${env.STREAMING_BASE_URL}/stream/${index}`}
+            />
+          ))}
         </div>
 
-        {/* Estadísticas del Estacionamiento */}
+        {/* Estadísticas del Estacionamiento (Global) */}
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
             <div className="flex items-center space-x-2 mb-2">
@@ -208,7 +211,7 @@ export function Home(props: Props) {
                     <UpdateIcon className="w-6 h-6 text-yellow-500 animate-spin" />
                   ) : (
                     barrierAction.barrier_state === 'abrir' ? 
-                      <LockOpen1Icon className="w-6 h-6 text-green-500" /> :
+                      <LockOpen1Icon className="w-6 h-6 text-green-500" /> : 
                       <LockClosedIcon className="w-6 h-6 text-red-500" />
                   )}
                 </div>
@@ -308,7 +311,7 @@ export function Home(props: Props) {
             <div>
               <span className="text-slate-600 dark:text-slate-400">Detecciones:</span>
               <span className="ml-2 font-mono text-slate-800 dark:text-slate-200">
-                {systemStatus === 'active' ? `${notifications?.predictions?.length || 0} autos` : '--'}
+                {systemStatus === 'active' ? `${totalDetections} autos` : '--'}
               </span>
             </div>
           </div>

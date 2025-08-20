@@ -1,9 +1,15 @@
+
 import React, { createContext, useContext, ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import { PredictionsNotificationContextType, NotificationResponse, Prediction } from '../types/notifications';
 import { predictionsWebSocket } from '../services/websocketService';
 import { useNotifications } from '../hooks/useNotifications';
 import { useAuth } from '@clerk/clerk-react';
 import { env } from '../lib/env';
+
+// La respuesta del WebSocket ahora debe incluir el índice de la cámara
+interface PredictionMessage extends NotificationResponse {
+  cam_index: number;
+}
 
 export const PredictionsNotificationContext = createContext<PredictionsNotificationContextType | undefined>(undefined);
 
@@ -14,58 +20,68 @@ interface PredictionsNotificationProviderProps {
 export const PredictionsNotificationProvider: React.FC<PredictionsNotificationProviderProps> = ({
   children
 }) => {
-  const [notifications, setNotifications] = useState<NotificationResponse | null>(null);
+  // Estado para almacenar las predicciones por cámara
+  const [predictionsByCamera, setPredictionsByCamera] = useState<Prediction[][]>(
+    Array.from({ length: env.CAMERA_COUNT }, () => [])
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [totalParkingSpaces] = useState<number>(env.TOTAL_PARKING_SPACES);
   const [totalDetections, setTotalDetections] = useState<number>(0);
-  const previousCarCountRef = useRef<number>(0);
+  const previousTotalCarCountRef = useRef<number>(0);
   const { addNotification } = useNotifications();
   const { getToken } = useAuth();
 
-  // Calculate system status based on state
   const systemStatus: 'active' | 'inactive' | 'error' = 
     error ? 'error' : 
     loading ? 'inactive' : 
     'active';
 
-  const handlePredictionData = useCallback((data: NotificationResponse) => {
-    console.log('Received WebSocket data:', data);
-    
-    const currentCarCount = data.predictions?.length || 0;
-    const carDifference = currentCarCount - previousCarCountRef.current;
-    
-    setNotifications(data);
-    setLastUpdated(new Date());
-    setTotalDetections(currentCarCount);
-    
-    // Only notify about changes in car count
-    console.log(previousCarCountRef.current);
-    if (previousCarCountRef.current > 0 && carDifference !== 0) {
-      let title: string;
-      let message: string;
-      let status: 'info' | 'success' | 'warning' | 'error';
-      
-      if (carDifference > 0) {
-        title = "Nuevos Autos Detectados";
-        message = `${carDifference} auto${carDifference !== 1 ? 's' : ''} nuevo${carDifference !== 1 ? 's' : ''} en el estacionamiento`;
-        status = 'info';
-      } else {
-        title = "Autos Salieron";
-        message = `${Math.abs(carDifference)} auto${Math.abs(carDifference) !== 1 ? 's' : ''} salieron del estacionamiento`;
-        status = 'success';
+  const handlePredictionData = useCallback((data: PredictionMessage) => {
+    console.log(`Received WebSocket data for camera ${data.cam_index}:`, data);
+
+    // Actualizar las predicciones para la cámara específica
+    setPredictionsByCamera(prevPredictions => {
+      const newPredictions = [...prevPredictions];
+      if (data.cam_index >= 0 && data.cam_index < env.CAMERA_COUNT) {
+        newPredictions[data.cam_index] = data.predictions || [];
       }
       
-      addNotification(title, message, "target", status);
-    }
-    
-    previousCarCountRef.current = currentCarCount;
+      // Recalcular el total de detecciones
+      const currentTotalCarCount = newPredictions.flat().length;
+      setTotalDetections(currentTotalCarCount);
+      
+      // Lógica de notificación basada en el cambio del *total* de autos
+      const carDifference = currentTotalCarCount - previousTotalCarCountRef.current;
+      if (previousTotalCarCountRef.current > 0 && carDifference !== 0) {
+        let title: string;
+        let message: string;
+        let status: 'info' | 'success' | 'warning' | 'error';
+        
+        if (carDifference > 0) {
+          title = "Nuevos Autos Detectados";
+          message = `${carDifference} auto${carDifference !== 1 ? 's' : ''} nuevo${carDifference !== 1 ? 's' : ''} en el estacionamiento`;
+          status = 'info';
+        } else {
+          title = "Autos Salieron";
+          message = `${Math.abs(carDifference)} auto${Math.abs(carDifference) !== 1 ? 's' : ''} salieron del estacionamiento`;
+          status = 'success';
+        }
+        
+        addNotification(title, message, "target", status);
+      }
+      
+      previousTotalCarCountRef.current = currentTotalCarCount;
+      
+      return newPredictions;
+    });
+
+    setLastUpdated(new Date());
     setError(null);
-  }, [addNotification]);
+  }, [addNotification, env.CAMERA_COUNT]);
 
   const refetch = useCallback(async () => {
-    // Reconnect WebSocket to get fresh data
     predictionsWebSocket.reconnect();
   }, []);
 
@@ -76,10 +92,8 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
 
     const initializeWebSocket = async () => {
       try {
-        // Get auth token from Clerk
         const token = await getToken();
         
-        // Subscribe to WebSocket events
         unsubscribeMessage = predictionsWebSocket.onMessage(handlePredictionData);
         
         unsubscribeError = predictionsWebSocket.onError((err) => {
@@ -105,7 +119,6 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
           }
         });
 
-        // Connect to WebSocket with auth token
         predictionsWebSocket.connect(token || undefined);
 
       } catch (err) {
@@ -116,7 +129,6 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
 
     initializeWebSocket();
 
-    // Cleanup on unmount
     return () => {
       unsubscribeMessage?.();
       unsubscribeError?.();
@@ -126,16 +138,15 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
   }, [handlePredictionData, getToken]);
 
   const value: PredictionsNotificationContextType = {
-    notifications,
+    // Se mantiene 'notifications' para compatibilidad de tipo, pero ahora es un subconjunto
+    notifications: { predictions: predictionsByCamera.flat() }, 
+    predictionsByCamera, // Nuevo estado para acceder a predicciones por cámara
     loading,
     error,
     lastUpdated,
     refetch,
-    // Parking-specific data
     totalParkingSpaces,
-    // System status
     systemStatus,
-    // Total detections count
     totalDetections
   };
 

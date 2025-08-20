@@ -4,9 +4,12 @@
  */
 
 export const env = {
-  // URL del streaming de video
-  STREAMING_URL: import.meta.env.VITE_STREAMING_URL || "https://097c-190-105-0-25.ngrok-free.app/video",
+  // URL base del streaming de video (sin la parte final como /video o /0)
+  STREAMING_BASE_URL: import.meta.env.VITE_STREAMING_BASE_URL || "https://097c-190-105-0-25.ngrok-free.app",
   
+  // Cantidad de cámaras que se esperan
+  CAMERA_COUNT: Number(import.meta.env.VITE_APP_CAMERA_COUNT) || 1,
+
   // URL del API backend
   API_URL: import.meta.env.VITE_API_URL || "http://localhost:8000",
   
@@ -27,8 +30,12 @@ export const env = {
 export const validateEnv = () => {
   const errors: string[] = [];
   
-  if (!env.STREAMING_URL) {
-    errors.push("VITE_STREAMING_URL is required");
+  if (!env.STREAMING_BASE_URL) {
+    errors.push("VITE_STREAMING_BASE_URL is required");
+  }
+
+  if (env.CAMERA_COUNT < 1) {
+    errors.push("VITE_APP_CAMERA_COUNT must be at least 1");
   }
   
   if (env.POLLING_INTERVAL < 1000) {

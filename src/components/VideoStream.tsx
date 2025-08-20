@@ -1,24 +1,16 @@
+
 import { useState, useEffect, useRef } from "react";
 import { VideoIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
-
-interface Prediction {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  confidence: number;
-  class_id: number;
-  class_name: string;
-}
+import { Prediction } from "@/types/notifications";
 
 interface VideoStreamProps {
   predictions?: Prediction[];
-  cameraId: string;
+  cam_index: number; // Cambiado de cameraId a cam_index
   cameraName: string;
   streamUrl: string;
 }
 
-export function VideoStream({ predictions = [], cameraId, cameraName, streamUrl }: VideoStreamProps) {
+export function VideoStream({ predictions = [], cam_index, cameraName, streamUrl }: VideoStreamProps) {
   const [isStreamLoading, setIsStreamLoading] = useState(true);
   const [hasStreamError, setHasStreamError] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -38,7 +30,6 @@ export function VideoStream({ predictions = [], cameraId, cameraName, streamUrl 
     setIsStreamLoading(false);
     setHasStreamError(false);
     
-    // Obtener las dimensiones reales de la imagen
     if (imgRef.current) {
       setImageDimensions({
         width: imgRef.current.naturalWidth,
