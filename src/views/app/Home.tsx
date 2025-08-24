@@ -133,7 +133,7 @@ export function Home(props: Props) {
               predictions={predictionsByCamera[index] || []}
               cam_index={index}
               cameraName={`Cámara ${index + 1}`}
-              streamUrl={`${env.STREAMING_BASE_URL}/stream/${index}`}
+              streamUrl={`${env.STREAMING_BASE_URL}/${index}`}
             />
           ))}
         </div>
