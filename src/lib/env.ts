@@ -17,7 +17,9 @@ export const env = {
   POLLING_INTERVAL: Number(import.meta.env.VITE_POLLING_INTERVAL) || 3000,
   
   // Configuración del estacionamiento
-  TOTAL_PARKING_SPACES: Number(import.meta.env.VITE_TOTAL_PARKING_SPACES) || 45,
+  PARKING_SPACES_PER_CAMERA: import.meta.env.REACT_APP_PARKING_SPACES_PER_CAMERA
+    ? import.meta.env.REACT_APP_PARKING_SPACES_PER_CAMERA.split(',').map((num: string) => parseInt(num.trim(), 10))
+    : [45, 55], 
   
   // Configuración de desarrollo
   IS_DEV: import.meta.env.DEV,
@@ -40,10 +42,6 @@ export const validateEnv = () => {
   
   if (env.POLLING_INTERVAL < 1000) {
     errors.push("VITE_POLLING_INTERVAL must be at least 1000ms");
-  }
-  
-  if (env.TOTAL_PARKING_SPACES < 1) {
-    errors.push("VITE_TOTAL_PARKING_SPACES must be at least 1");
   }
   
   if (errors.length > 0) {

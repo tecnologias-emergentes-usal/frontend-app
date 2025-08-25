@@ -10,6 +10,7 @@ export interface BarrierStatus {
   space_available: number;
   timestamp: number;
   parsedTimestamp: Date;
+  cam_index: number;
 }
 
 type MessageHandler = (data: BarrierStatus) => void;
@@ -82,7 +83,8 @@ class BarrierWebSocketService {
         utilization_percent: data.utilization_percent,
         space_available: data.space_available,
         timestamp: data.timestamp,
-        parsedTimestamp: new Date(data.timestamp * 1000)
+        parsedTimestamp: new Date(data.timestamp * 1000),
+        cam_index: data.cam_index
       };
     } catch (error) {
       throw new Error(`Invalid barrier message JSON: ${message}`);
