@@ -11,9 +11,9 @@ interface GuestGuardProps {
 
 /**
  * GuestGuard - Protege rutas que solo deben ser accesibles para usuarios no autenticados
- * Redirige a /home si el usuario ya está autenticado
- */
-export function GuestGuard({ children, redirectTo = '/home' }: GuestGuardProps) {
+ * Redirige a /app/home si el usuario ya está autenticado
+*/
+export function GuestGuard({ children, redirectTo = '/app/home' }: GuestGuardProps) {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
 

@@ -11,7 +11,7 @@ export function Login() {
   return (
     <>
       <button
-        onClick={() => router.push('/welcome')}
+        onClick={() => router.push('/auth/welcome')}
         className="w-fit h-fit p-2 rounded-lg mb-6 hover:bg-gray-100 transition-colors"
       >
         <ChevronLeftIcon width={28} height={28} />
@@ -21,7 +21,7 @@ export function Login() {
         <SurveillanceIcon width={200} height={150} />
       </div>
 
-      <SignIn routing="path" path="/login" signUpUrl="/register" />
+      <SignIn routing="path" path="/auth/login" signUpUrl="/auth/register" />
     </>
   );
 }

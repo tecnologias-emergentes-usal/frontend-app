@@ -22,18 +22,18 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   const navigationItems = [
     {
-      path: "/home",
+      path: "/app/home",
       icon: HomeIcon,
       label: "Home",
     },
     {
-      path: "/view",
+      path: "/app/view",
       icon: EyeOpenIcon,
       label: "View",
       disabled: true,
     },
     {
-      path: "/icons",
+      path: "/app/icons",
       icon: GearIcon,
       label: "Icons",
       disabled: true,
