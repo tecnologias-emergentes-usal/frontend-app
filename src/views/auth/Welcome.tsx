@@ -29,7 +29,7 @@ export function Welcome() {
       <div className="space-y-4">
         <Button
           large
-          onClick={() => router.push('/login')}
+          onClick={() => router.push('/auth/login')}
           className="w-full text-white"
         >
           Iniciar Sesión
@@ -37,7 +37,7 @@ export function Welcome() {
         <Button
           large
           outline
-          onClick={() => router.push('/register')}
+          onClick={() => router.push('/auth/register')}
           className="w-full text-secondary border-secondary"
         >
           Registrarse

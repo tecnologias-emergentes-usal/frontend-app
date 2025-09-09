@@ -11,9 +11,9 @@ interface AuthGuardProps {
 
 /**
  * AuthGuard - Protege rutas que requieren autenticación
- * Redirige a /login si el usuario no está autenticado
- */
-export function AuthGuard({ children, redirectTo = '/welcome' }: AuthGuardProps) {
+ * Redirige a /auth/welcome si el usuario no está autenticado
+*/
+export function AuthGuard({ children, redirectTo = '/auth/welcome' }: AuthGuardProps) {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
 

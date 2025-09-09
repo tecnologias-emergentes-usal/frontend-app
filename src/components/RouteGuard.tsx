@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { usePathname, useRouter } from 'next/navigation';
 
-const publicRoutes = ['/welcome', '/login', '/register'];
+const publicRoutes = ['/auth/welcome', '/auth/login', '/auth/register'];
 
 export function RouteGuard({ children }: { children: ReactNode }) {
   const { isLoaded, userId } = useAuth();
@@ -15,7 +15,7 @@ export function RouteGuard({ children }: { children: ReactNode }) {
     if (!isLoaded) return;
     const isPublic = publicRoutes.includes(pathname);
     if (!isPublic && !userId) {
-      router.replace('/welcome');
+      router.replace('/auth/welcome');
     }
   }, [isLoaded, userId, pathname, router]);
 
