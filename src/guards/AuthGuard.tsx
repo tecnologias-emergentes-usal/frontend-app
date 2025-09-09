@@ -1,8 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect } from 'react';
-import { useAuth } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+import { useAuth, redirectToSignIn } from '@clerk/nextjs';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -12,16 +11,15 @@ interface AuthGuardProps {
 /**
  * AuthGuard - Protege rutas que requieren autenticación
  * Redirige a /auth/welcome si el usuario no está autenticado
-*/
+ */
 export function AuthGuard({ children, redirectTo = '/auth/welcome' }: AuthGuardProps) {
   const { isSignedIn, isLoaded } = useAuth();
-  const router = useRouter();
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      router.replace(redirectTo);
+      redirectToSignIn({ redirectUrl: redirectTo });
     }
-  }, [isLoaded, isSignedIn, redirectTo, router]);
+  }, [isLoaded, isSignedIn, redirectTo]);
 
   if (!isLoaded || !isSignedIn) {
     return (
