@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { NotificationResponse } from '../types/notifications';
+import { env } from '@/lib/env';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = env.API_URL;
 const ENDPOINT = 'resultado';
 
 export class NotificationService {

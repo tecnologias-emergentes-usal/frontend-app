@@ -1,6 +1,6 @@
 # Frontend de Monitoreo de Estacionamiento
 
-Este proyecto es la interfaz de usuario (UI) para un sistema de monitoreo de estacionamiento en tiempo real. Está construido con React, Vite, y TypeScript, y está diseñado para ser una aplicación web moderna y un cliente móvil a través de Capacitor.
+Este proyecto es la interfaz de usuario (UI) para un sistema de monitoreo de estacionamiento en tiempo real. Está construido con React, Next.js y TypeScript, y está diseñado para ser una aplicación web moderna.
 
 ## Funcionalidades Principales
 
@@ -14,11 +14,11 @@ Este proyecto es la interfaz de usuario (UI) para un sistema de monitoreo de est
 ## Stack Tecnológico
 
 - **Framework:** React 18
-- **Herramientas de Build:** Vite
+- **Herramientas de Build:** Next.js
 - **Lenguaje:** TypeScript
 - **Estilos:** Tailwind CSS
 - **Autenticación:** Clerk
-- **Cliente Móvil:** Capacitor
+
 
 ## Estructura del Proyecto
 
@@ -48,10 +48,10 @@ cp .env.example .env
 
 ### Variables de Entorno Clave
 
-- `VITE_API_URL`: La URL base del **Parking Middleware API**.
-- `VITE_STREAMING_BASE_URL`: La URL base donde se sirven los streams de video.
-- `VITE_APP_CAMERA_COUNT`: El número de cámaras que la aplicación debe mostrar.
-- `VITE_CLERK_PUBLISHABLE_KEY`: La clave pública de tu instancia de Clerk para la autenticación.
+- `NEXT_PUBLIC_API_URL`: La URL base del **Parking Middleware API**.
+- `NEXT_PUBLIC_STREAMING_BASE_URL`: La URL base donde se sirven los streams de video.
+- `NEXT_PUBLIC_APP_CAMERA_COUNT`: El número de cámaras que la aplicación debe mostrar.
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: La clave pública de tu instancia de Clerk para la autenticación.
 
 ## Instalación y Uso
 
@@ -66,7 +66,7 @@ cp .env.example .env
     ```bash
     npm run dev
     ```
-    La aplicación estará disponible en `http://localhost:5173` (o el puerto que indique Vite).
+    La aplicación estará disponible en `http://localhost:3000`.
 
 ## Comunicación con el Backend
 
@@ -77,4 +77,4 @@ El frontend se comunica con el backend a través de dos canales principales:
     *   **Estado de Barrera:** Se conecta a otro WebSocket del Middleware para recibir actualizaciones sobre el estado de la barrera de acceso.
 
 2.  **HTTP Streaming:** Para las transmisiones de video en vivo:
-    *   El frontend espera que los streams de video estén disponibles en URLs construidas a partir de `VITE_STREAMING_BASE_URL` y el índice de la cámara (ej. `{VITE_STREAMING_BASE_URL}/stream/{cam_index}`). Estos streams son de tipo Motion JPEG (MJPEG).
+    *   El frontend espera que los streams de video estén disponibles en URLs construidas a partir de `NEXT_PUBLIC_STREAMING_BASE_URL` y el índice de la cámara (ej. `{NEXT_PUBLIC_STREAMING_BASE_URL}/stream/{cam_index}`). Estos streams son de tipo Motion JPEG (MJPEG).
