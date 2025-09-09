@@ -1,21 +1,23 @@
+'use client';
+
 import { ReactNode } from "react";
 import { Page } from "konsta/react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { usePathname, useRouter } from "next/navigation";
 import {
   HomeIcon,
   EyeOpenIcon,
   GearIcon,
   MagnifyingGlassIcon,
 } from "@radix-ui/react-icons";
-import { UserButton, useUser } from "@clerk/clerk-react";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const router = useRouter();
   const { user } = useUser();
 
   const navigationItems = [
@@ -38,7 +40,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     },
   ];
 
-  const isActivePath = (path: string) => location.pathname === path;
+  const isActivePath = (path: string) => pathname === path;
 
   const firstName = user?.firstName || "Usuario";
 
@@ -103,7 +105,7 @@ export function MainLayout({ children }: MainLayoutProps) {
               return (
                 <button
                   key={item.path}
-                  onClick={() => navigate(item.path)}
+                  onClick={() => router.push(item.path)}
                   disabled={item.disabled}
                   className={`relative p-3 rounded-full transition-all ${
                     isActive

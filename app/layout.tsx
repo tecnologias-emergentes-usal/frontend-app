@@ -1,8 +1,12 @@
-import type { AppProps } from 'next/app';
+import type { ReactNode } from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
 import { esES } from '@clerk/localizations';
 import '@/app.css';
 import { validateEnv } from '@/lib/env';
+import { RouteGuard } from '@/components/RouteGuard';
+import { NotificationProvider } from '@/context/NotificationContext';
+import { PredictionsNotificationProvider } from '@/context/PredictionsNotificationContext';
+import { BarrierProvider } from '@/context/BarrierContext';
 
 validateEnv();
 
@@ -117,7 +121,7 @@ const localization = {
   ...customLocalization,
 };
 
-function MyApp({ Component, pageProps }: AppProps) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <ClerkProvider
       publishableKey={publishableKey}
@@ -128,9 +132,17 @@ function MyApp({ Component, pageProps }: AppProps) {
       signInFallbackRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL}
       signUpFallbackRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL}
     >
-      <Component {...pageProps} />
+      <html lang="en">
+        <body>
+          <NotificationProvider>
+            <PredictionsNotificationProvider>
+              <BarrierProvider>
+                <RouteGuard>{children}</RouteGuard>
+              </BarrierProvider>
+            </PredictionsNotificationProvider>
+          </NotificationProvider>
+        </body>
+      </html>
     </ClerkProvider>
   );
 }
-
-export default MyApp;

@@ -1,9 +1,11 @@
+'use client';
+
 
 import React, { createContext, useContext, ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import { PredictionsNotificationContextType, NotificationResponse, Prediction, ParkingStats } from '../types/notifications';
 import { predictionsWebSocket } from '../services/websocketService';
 import { useNotifications } from '../hooks/useNotifications';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/nextjs';
 import { env } from '../lib/env';
 
 // La respuesta del WebSocket ahora debe incluir el índice de la cámara

@@ -1,3 +1,5 @@
+'use client';
+
 import { Page, Navbar, Block, BlockTitle } from "konsta/react";
 import { SurveillanceIconExample } from "@/components";
 

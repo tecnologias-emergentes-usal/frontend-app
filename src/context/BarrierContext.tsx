@@ -1,6 +1,8 @@
+'use client';
+
 import React, { createContext, useContext, ReactNode, useState, useEffect, useCallback } from 'react';
 import { barrierWebSocket, BarrierStatus } from '../services/barrierWebSocketService';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/nextjs';
 
 export interface BarrierContextType {
   lastActions: Record<number, BarrierStatus | null>; 

@@ -1,6 +1,8 @@
-import { ReactNode } from 'react';
-import { useAuth } from '@clerk/clerk-react';
-import { Navigate } from 'react-router-dom';
+'use client';
+
+import { ReactNode, useEffect } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 interface GuestGuardProps {
   children: ReactNode;
@@ -13,8 +15,14 @@ interface GuestGuardProps {
  */
 export function GuestGuard({ children, redirectTo = '/home' }: GuestGuardProps) {
   const { isSignedIn, isLoaded } = useAuth();
+  const router = useRouter();
 
-  // Mostrar loading mientras se carga la autenticación
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.replace(redirectTo);
+    }
+  }, [isLoaded, isSignedIn, redirectTo, router]);
+
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -23,9 +31,8 @@ export function GuestGuard({ children, redirectTo = '/home' }: GuestGuardProps) 
     );
   }
 
-  // Si ya está autenticado, redirigir
   if (isSignedIn) {
-    return <Navigate to={redirectTo} replace />;
+    return null;
   }
 
   // Usuario no autenticado, mostrar contenido
