@@ -19,7 +19,7 @@ export const env = {
   // Configuración del estacionamiento
   PARKING_SPACES_PER_CAMERA: import.meta.env.REACT_APP_PARKING_SPACES_PER_CAMERA
     ? import.meta.env.REACT_APP_PARKING_SPACES_PER_CAMERA.split(',').map((num: string) => parseInt(num.trim(), 10))
-    : [45, 55], 
+    : [4, 6], 
   
   // Configuración de desarrollo
   IS_DEV: import.meta.env.DEV,
