@@ -1,6 +1,8 @@
-import { ReactNode } from 'react';
-import { useAuth } from '@clerk/clerk-react';
-import { Navigate } from 'react-router-dom';
+'use client';
+
+import { ReactNode, useEffect } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -13,19 +15,20 @@ interface AuthGuardProps {
  */
 export function AuthGuard({ children, redirectTo = '/welcome' }: AuthGuardProps) {
   const { isSignedIn, isLoaded } = useAuth();
+  const router = useRouter();
 
-  // Mostrar loading mientras se carga la autenticación
-  if (!isLoaded) {
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.replace(redirectTo);
+    }
+  }, [isLoaded, isSignedIn, redirectTo, router]);
+
+  if (!isLoaded || !isSignedIn) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
-  }
-
-  // Si no está autenticado, redirigir
-  if (!isSignedIn) {
-    return <Navigate to={redirectTo} replace />;
   }
 
   // Usuario autenticado, mostrar contenido

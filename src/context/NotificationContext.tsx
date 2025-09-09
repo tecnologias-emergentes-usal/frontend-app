@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, ReactNode, useState, useEffect, useCallback } from 'react';
 import { Notification } from 'konsta/react';
 import { NotificationContextType, GenericNotification, NotificationDisplayState } from '../types/notifications';

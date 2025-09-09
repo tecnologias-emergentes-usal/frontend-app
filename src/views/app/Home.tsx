@@ -1,3 +1,5 @@
+'use client';
+
 import { useLayoutEffect, useState, useEffect } from "react";
 import { 
   ClockIcon, 

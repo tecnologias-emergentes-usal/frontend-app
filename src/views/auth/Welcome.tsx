@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  Button,
-} from "konsta/react";
-import { SurveillanceIcon } from "@/components";
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from 'konsta/react';
+import { SurveillanceIcon } from '@/components';
 
 export function Welcome() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   return (
@@ -22,15 +22,14 @@ export function Welcome() {
 
       <div className="mb-8">
         <p className="text-secondary text-left">
-          Encuentra tu sistema de vigilancia inteligente con USAL Alert. La plataforma más avanzada de seguridad
-          ha llegado a tu dispositivo móvil.
+          Encuentra tu sistema de vigilancia inteligente con USAL Alert. La plataforma más avanzada de seguridad ha llegado a tu dispositivo móvil.
         </p>
       </div>
 
       <div className="space-y-4">
         <Button
           large
-          onClick={() => navigate("/login")}
+          onClick={() => router.push('/login')}
           className="w-full text-white"
         >
           Iniciar Sesión
@@ -38,7 +37,7 @@ export function Welcome() {
         <Button
           large
           outline
-          onClick={() => navigate("/register")}
+          onClick={() => router.push('/register')}
           className="w-full text-secondary border-secondary"
         >
           Registrarse
@@ -46,4 +45,4 @@ export function Welcome() {
       </div>
     </>
   );
-} 
+}
