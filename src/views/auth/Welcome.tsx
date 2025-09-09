@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from 'konsta/react';
 import { SurveillanceIcon } from '@/components';
 
 export function Welcome() {
@@ -27,21 +26,21 @@ export function Welcome() {
       </div>
 
       <div className="space-y-4">
-        <Button
-          large
+        <button
+          type="button"
           onClick={() => router.push('/auth/login')}
-          className="w-full text-white"
+          className="w-full px-4 py-2 text-white bg-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50"
+          disabled={loading}
         >
           Iniciar Sesión
-        </Button>
-        <Button
-          large
-          outline
+        </button>
+        <button
+          type="button"
           onClick={() => router.push('/auth/register')}
-          className="w-full text-secondary border-secondary"
+          className="w-full px-4 py-2 text-secondary border border-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
         >
           Registrarse
-        </Button>
+        </button>
       </div>
     </>
   );

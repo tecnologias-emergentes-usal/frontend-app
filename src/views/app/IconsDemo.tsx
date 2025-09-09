@@ -1,21 +1,22 @@
 'use client';
 
-import { Page, Navbar, Block, BlockTitle } from "konsta/react";
 import { SurveillanceIconExample } from "@/components";
 
 export function IconsDemo() {
   return (
-    <Page className="bg-background">
-      <Navbar title="HorusAlert Demo" large transparent centerTitle />
-      
-      <BlockTitle className="text-foreground">SVG Icons</BlockTitle>
+    <div className="bg-background min-h-screen">
+      <header className="px-4 py-4">
+        <h1 className="text-xl font-semibold">HorusAlert Demo</h1>
+      </header>
+
+      <h2 className="text-foreground text-lg font-semibold px-4">SVG Icons</h2>
       <SurveillanceIconExample />
-      
-      <BlockTitle className="text-foreground">Color Palette</BlockTitle>
-      
-      <Block>
-        <BlockTitle className="text-foreground">Color Swatches</BlockTitle>
-        <div className="grid grid-cols-2 gap-4 p-4">
+
+      <h2 className="text-foreground text-lg font-semibold px-4">Color Palette</h2>
+
+      <section className="px-4">
+        <h3 className="text-foreground font-semibold mb-2">Color Swatches</h3>
+        <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col">
             <div className="h-16 bg-primary rounded-t-lg"></div>
             <div className="bg-card p-2 rounded-b-lg">
@@ -48,7 +49,7 @@ export function IconsDemo() {
             </div>
           </div>
         </div>
-      </Block>
-    </Page>
+      </section>
+    </div>
   );
-} 
+}

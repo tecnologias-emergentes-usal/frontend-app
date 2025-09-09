@@ -1,7 +1,7 @@
-import konstaConfig from "konsta/config";
+import animate from "tailwindcss-animate";
 
 /** @type {import('tailwindcss').Config} */
-module.exports = konstaConfig({
+export default {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
@@ -9,15 +9,6 @@ module.exports = konstaConfig({
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
-  
-  konsta: {
-    colors: {
-      primary: "#388E3C",
-      secondary: "#616161",
-      background: "#FFFFFF",
-      card: "#F4F4F4",
-    },
-  },
   prefix: "",
   theme: {
     container: {
@@ -29,29 +20,27 @@ module.exports = konstaConfig({
     },
     extend: {
       colors: {
-        // Light mode HorusAlert palette
-        background: "#FFFFFF", // Fondo principal
-        card: "#F4F4F4", // Fondo secundario (tarjetas/paneles)
-        /*primary: {
-          DEFAULT: "#388E3C", // Color de énfasis/acento (USAL verde claro/moderno)
-          foreground: "#FFFFFF", // White text on primary
-        },
-        secondary: {
-          DEFAULT: "#616161", // Texto secundario/iconos secundarios
+        background: "#FFFFFF",
+        card: "#F4F4F4",
+        foreground: "#212121",
+        primary: {
+          DEFAULT: "#388E3C",
           foreground: "#FFFFFF",
         },
-        */
-        foreground: "#212121", // Texto principal
+        secondary: {
+          DEFAULT: "#616161",
+          foreground: "#FFFFFF",
+        },
         accent: {
-          DEFAULT: "#FF9800", // Color de alertas/notificaciones
+          DEFAULT: "#FF9800",
           foreground: "#FFFFFF",
         },
         muted: {
-          DEFAULT: "#F4F4F4", 
-          foreground: "#616161", // Texto secundario
+          DEFAULT: "#F4F4F4",
+          foreground: "#616161",
         },
         destructive: {
-          DEFAULT: "#FF9800", // Using accent color for destructive actions
+          DEFAULT: "#FF9800",
           foreground: "#FFFFFF",
         },
         border: "#E0E0E0",
@@ -83,5 +72,5 @@ module.exports = konstaConfig({
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-});
+  plugins: [animate],
+};
