@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, ReactNode, useState, useEffect, useCallback } from 'react';
-import { Notification } from 'konsta/react';
 import { NotificationContextType, GenericNotification, NotificationDisplayState } from '../types/notifications';
 import { getIcon } from '../utils/iconDictionary';
 
@@ -127,17 +126,28 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   return (
     <NotificationContext.Provider value={value}>
       {children}
-      {/* Always render notification, control visibility with opened prop */}
-      <div>
-        <Notification
-          opened={displayState.isVisible && displayState.currentNotification !== null}
-          icon={displayState.currentNotification ? getIcon(displayState.currentNotification.icon, `w-6 h-6 ${getStatusColor(displayState.currentNotification.status)}`) : undefined}
-          title={displayState.currentNotification?.title || ''}
-          subtitle={displayState.currentNotification?.message || ''}
-          onClick={dismissCurrentNotification}
-          className={displayState.currentNotification ? getStatusBgColor(displayState.currentNotification.status) : ''}
-        />
-      </div>
+      {displayState.isVisible && displayState.currentNotification && (
+        <div
+          role="alert"
+          className={`fixed bottom-4 right-4 max-w-sm border rounded-lg shadow-lg p-4 flex items-start gap-2 ${getStatusBgColor(displayState.currentNotification.status)}`}
+        >
+          {getIcon(
+            displayState.currentNotification.icon,
+            `w-6 h-6 ${getStatusColor(displayState.currentNotification.status)}`
+          )}
+          <div className="flex-1">
+            <p className="font-semibold">{displayState.currentNotification.title}</p>
+            <p className="text-sm">{displayState.currentNotification.message}</p>
+          </div>
+          <button
+            onClick={dismissCurrentNotification}
+            className="ml-2 text-sm text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary rounded"
+            aria-label="Cerrar notificación"
+          >
+            ×
+          </button>
+        </div>
+      )}
     </NotificationContext.Provider>
   );
 };
