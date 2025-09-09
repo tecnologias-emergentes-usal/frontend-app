@@ -12,6 +12,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
+    "baseUrl": ".",
 
     /* Linting */
     "strict": true,
@@ -27,6 +28,5 @@
     "plugins": [{ "name": "next" }]
   },
   "include": ["next-env.d.ts", "src", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "exclude": ["node_modules"]
 }
