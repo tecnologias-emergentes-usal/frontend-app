@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ClerkProvider } from '@clerk/nextjs';
+import { ClerkProvider } from "@clerk/nextjs";
 import { esES } from '@clerk/localizations';
 import '@/app.css';
 import { validateEnv } from '@/lib/env';
