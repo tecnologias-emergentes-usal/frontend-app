@@ -3,10 +3,6 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { esES } from '@clerk/localizations';
 import '@/app.css';
 import { validateEnv } from '@/lib/env';
-import { RouteGuard } from '@/components/RouteGuard';
-import { NotificationProvider } from '@/context/NotificationContext';
-import { PredictionsNotificationProvider } from '@/context/PredictionsNotificationContext';
-import { BarrierProvider } from '@/context/BarrierContext';
 
 validateEnv();
 
@@ -133,15 +129,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       signUpFallbackRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL}
     >
       <html lang="en">
-        <body>
-          <NotificationProvider>
-            <PredictionsNotificationProvider>
-              <BarrierProvider>
-                <RouteGuard>{children}</RouteGuard>
-              </BarrierProvider>
-            </PredictionsNotificationProvider>
-          </NotificationProvider>
-        </body>
+        <body>{children}</body>
       </html>
     </ClerkProvider>
   );
