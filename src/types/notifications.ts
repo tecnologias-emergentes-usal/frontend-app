@@ -36,17 +36,25 @@ export interface NotificationContextType {
   dismissCurrentNotification: () => void;
 }
 
+export interface ParkingStats {
+  totalSpots: number;
+  occupiedSpots: number;
+  availableSpots: number;
+  lastUpdate: string;
+  alertLevel: 'low' | 'medium' | 'high';
+}
+
 // Tipo para el contexto de notificaciones de predicciones actualizado
 export interface PredictionsNotificationContextType {
   // Objeto de notificaciones original, ahora representa un consolidado
   notifications: { predictions: Prediction[] } | null;
   // Nuevo: Array de predicciones por cámara
   predictionsByCamera: Prediction[][];
+  parkingStatsByCamera: ParkingStats[];
   loading: boolean;
   error: string | null;
   lastUpdated: Date | null;
   refetch: () => Promise<void>;
   totalParkingSpaces: number;
   systemStatus: 'active' | 'inactive' | 'error';
-  totalDetections: number;
 }
