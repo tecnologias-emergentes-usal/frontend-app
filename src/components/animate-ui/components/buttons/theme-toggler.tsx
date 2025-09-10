@@ -56,6 +56,9 @@ function ThemeTogglerButton({
   ...props
 }: ThemeTogglerButtonProps) {
   const { theme, resolvedTheme, setTheme } = useTheme();
+  // Avoid hydration mismatch by rendering a stable icon until mounted
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
 
   return (
     <ThemeTogglerPrimitive
@@ -75,7 +78,7 @@ function ThemeTogglerButton({
           }}
           {...props}
         >
-          {getIcon(effective, resolved, modes)}
+          {mounted ? getIcon(effective, resolved, modes) : <Monitor />}
         </button>
       )}
     </ThemeTogglerPrimitive>
