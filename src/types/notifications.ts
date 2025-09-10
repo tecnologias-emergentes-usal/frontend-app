@@ -50,6 +50,8 @@ export interface PredictionsNotificationContextType {
   notifications: { predictions: Prediction[] } | null;
   // Nuevo: Array de predicciones por cámara
   predictionsByCamera: Prediction[][];
+  // Timestamp del último lote de predicciones por cámara (ISO string)
+  lastPredictionsTimestampByCamera: string[];
   parkingStatsByCamera: ParkingStats[];
   loading: boolean;
   error: string | null;

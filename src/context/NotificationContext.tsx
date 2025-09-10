@@ -141,7 +141,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           </div>
           <button
             onClick={dismissCurrentNotification}
-            className="ml-2 text-sm text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary rounded"
+            className="ml-2 text-sm text-gray-500 hover:text-gray-700 focus:outline-hidden focus:ring-2 focus:ring-primary rounded"
             aria-label="Cerrar notificación"
           >
             ×

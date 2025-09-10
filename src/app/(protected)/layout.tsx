@@ -1,16 +1,15 @@
 "use client";
 
 import type { ReactNode } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+//
 import { usePathname } from 'next/navigation';
-import { UserButton, useUser, SignOutButton } from '@clerk/nextjs';
+//
 
 import { NotificationProvider } from '@/context/NotificationContext';
 import { PredictionsNotificationProvider } from '@/context/PredictionsNotificationContext';
 import { BarrierProvider } from '@/context/BarrierContext';
 
-import { Home } from 'lucide-react';
+//
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
@@ -19,20 +18,20 @@ import { ThemeTogglerButton } from '@/components/animate-ui/components/buttons/t
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { user } = useUser();
-
-  const navItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: Home },
-  ] as const;
-
-  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Usuario';
-  const email = user?.primaryEmailAddress?.emailAddress || '';
+  //
 
   // Build dynamic breadcrumbs from the current path
   const segments = pathname.split('/').filter(Boolean)
+  const labelMap: Record<string, string> = {
+    dashboard: 'Principal',
+    configuracion: 'Configuración',
+    alertas: 'Alertas',
+    predicciones: 'Predicciones',
+    camera: 'Cámara',
+  }
   const crumbs = segments.map((seg, idx) => {
     const href = '/' + segments.slice(0, idx + 1).join('/')
-    const label = seg
+    const label = labelMap[seg] ?? seg
       .replace(/-/g, ' ')
       .replace(/\b\w/g, (c) => c.toUpperCase())
     return { href, label }
@@ -45,7 +44,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
           <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2">
+        <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:rounded-t-xl">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -77,7 +76,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
             </Breadcrumb>
           </div>
           <div className="ml-auto px-4">
-            <ThemeTogglerButton variant="ghost" size="icon" aria-label="Cambiar tema" />
+            <ThemeTogglerButton variant="ghost" size="lg" aria-label="Cambiar tema" />
           </div>
         </header>
         <main className="flex flex-1 flex-col overflow-hidden p-4">

@@ -75,7 +75,7 @@ export function Home(props: Props) {
   return (
     <div className="space-y-6">
       {/* Header con tiempo y estado */}
-      <div className="flex items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+      <div className="flex items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-2xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2">
             <EyeOpenIcon className="w-5 h-5 text-primary" />
@@ -120,7 +120,7 @@ export function Home(props: Props) {
 
             {/* Estadísticas de la cámara */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
                 <div className="flex items-center space-x-2 mb-2">
                   <ArchiveIcon className="w-5 h-5 text-red-500" />
                   <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
@@ -148,7 +148,7 @@ export function Home(props: Props) {
                 )}
               </div>
               
-              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
                 <div className="flex items-center space-x-2 mb-2">
                   <PersonIcon className="w-5 h-5 text-green-500" />
                   <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
@@ -224,7 +224,7 @@ export function Home(props: Props) {
             </div>
 
             {/* Estado de la Barrera por cámara */}
-            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
               <div className="flex items-center space-x-2 mb-2">
                 <GearIcon className="w-5 h-5 text-blue-500" />
                 <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
@@ -266,7 +266,7 @@ export function Home(props: Props) {
       </div>
 
       {/* Metadata Adicional */}
-      <div className="bg-white/80 dark:bg-slaterouge-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+      <div className="bg-white/80 dark:bg-slaterouge-800/80 backdrop-blur-xs rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
         <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
           Información del Sistema
         </h3>

@@ -4,7 +4,6 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import { PredictionsNotificationContextType, NotificationResponse, Prediction, ParkingStats } from '../types/notifications';
 import { predictionsWebSocket } from '../services/websocketService';
-import { useNotifications } from '../hooks/useNotifications';
 import { useAuth } from '@clerk/nextjs';
 import { env } from '../lib/env';
 
@@ -37,11 +36,13 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [lastPredictionsTimestampByCamera, setLastPredictionsTimestampByCamera] = useState<string[]>(
+    Array.from({ length: env.CAMERA_COUNT }, () => '')
+  );
   const [totalParkingSpaces] = useState<number>(
     env.PARKING_SPACES_PER_CAMERA.reduce((sum: number, spaces: number) => sum + spaces, 0)
   );
   const previousCarCountByCameraRef = useRef<number[]>(Array(env.CAMERA_COUNT).fill(0));
-  const { addNotification } = useNotifications();
   const { getToken } = useAuth();
 
   const systemStatus: 'active' | 'inactive' | 'error' = 
@@ -56,9 +57,18 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
       const newPredictions = [...prevPredictions];
       if (data.cam_index >= 0 && data.cam_index < env.CAMERA_COUNT) {
         newPredictions[data.cam_index] = data.predictions || [];
+        setLastPredictionsTimestampByCamera((prev) => {
+          const copy = [...prev];
+          copy[data.cam_index] = data.timestamp || new Date().toISOString();
+          return copy;
+        });
 
         // Calcular estadísticas para la cámara específica
-        const occupiedSpots = newPredictions[data.cam_index].length;
+        // Contar solo vehículos relevantes (p.ej., autos) para evitar ruido
+        const occupiedSpots = (newPredictions[data.cam_index] || []).filter((p) => {
+          const k = p.class_name?.toLowerCase?.() ?? '';
+          return k === 'car' || k === 'truck' || k === 'bus' || k === 'van' || k === 'pickup' || k === 'motorcycle';
+        }).length;
         const totalSpots = env.PARKING_SPACES_PER_CAMERA[data.cam_index] || 45;
         const availableSpots = Math.max(0, totalSpots - occupiedSpots);
         const alertLevel: 'low' | 'medium' | 'high' = 
@@ -78,25 +88,9 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
           return newStats;
         });
 
-        // Notificaciones basadas en cambios por cámara
-        const carDifference = occupiedSpots - previousCarCountByCameraRef.current[data.cam_index];
-        if (previousCarCountByCameraRef.current[data.cam_index] > 0 && carDifference !== 0) {
-          let title: string;
-          let message: string;
-          let status: 'info' | 'success' | 'warning' | 'error';
-          
-          if (carDifference > 0) {
-            title = `Nuevos Autos en Estacionamiento ${data.cam_index + 1}`;
-            message = `${carDifference} auto${carDifference !== 1 ? 's' : ''} nuevo${carDifference !== 1 ? 's' : ''} en el estacionamiento ${data.cam_index + 1}`;
-            status = 'info';
-          } else {
-            title = `Autos Salieron de Estacionamiento ${data.cam_index + 1}`;
-            message = `${Math.abs(carDifference)} auto${Math.abs(carDifference) !== 1 ? 's' : ''} salieron del estacionamiento ${data.cam_index + 1}`;
-            status = 'success';
-          }
-          
-          addNotification(title, message, "target", status);
-        }
+        // Antes: enviábamos notificaciones globales cuando cambiaba la ocupación.
+        // Ahora: estos eventos se muestran localmente en la vista de la cámara.
+        // (cálculo de diferencia de autos movido al nivel de UI cuando haga falta)
         
         previousCarCountByCameraRef.current[data.cam_index] = occupiedSpots;
       }
@@ -106,7 +100,7 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
 
     setLastUpdated(new Date());
     setError(null);
-  }, [addNotification, env.CAMERA_COUNT]);
+  }, [env.CAMERA_COUNT]);
 
   const refetch = useCallback(async () => {
     predictionsWebSocket.reconnect();
@@ -167,6 +161,7 @@ export const PredictionsNotificationProvider: React.FC<PredictionsNotificationPr
   const value: PredictionsNotificationContextType = {
     notifications: { predictions: predictionsByCamera.flat() },
     predictionsByCamera,
+    lastPredictionsTimestampByCamera,
     parkingStatsByCamera,
     loading,
     error,

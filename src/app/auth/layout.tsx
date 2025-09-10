@@ -5,14 +5,14 @@ import { FlipWords } from "@/components/ui/flip-words";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="grid min-h-[100dvh] grid-cols-1 md:grid-cols-12">
+    <div className="grid min-h-dvh grid-cols-1 md:grid-cols-12 bg-sidebar">
       {/* Left: Auth form (full-height card) */}
 
-      <div className="hidden md:flex md:col-span-7 p-5 h-[100dvh]">
+      <div className="hidden md:flex md:col-span-7 p-5 h-dvh">
         {/* Right: Brand panel with bubble background applied only here */}
         <BubbleBackground
           interactive
-          className="relative w-full h-full rounded-[2rem]"
+          className="relative w-full h-full rounded-4xl"
           colors={{
             first: '46,125,50',   // deep green #2E7D32
             second: '255,152,0',  // orange  #FF9800
@@ -60,7 +60,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         </BubbleBackground>
       </div>
 
-      <div className="flex h-[100dvh] items-center justify-center bg-background p-6 md:p-10 md:col-span-5">
+      <div className="flex h-dvh items-center justify-center bg-sidebar p-6 md:p-10 md:col-span-5">
         {children}
       </div>
     </div>

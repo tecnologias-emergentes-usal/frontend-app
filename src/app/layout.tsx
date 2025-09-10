@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react';
+import type { Metadata } from 'next';
 import { ClerkProvider } from "@clerk/nextjs";
 import { esES } from '@clerk/localizations';
 import '@/app.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { validateEnv } from '@/lib/env';
+import { Inter, EB_Garamond, Fira_Code } from 'next/font/google';
 
 validateEnv();
 
@@ -12,18 +14,31 @@ if (!publishableKey) {
   throw new Error('Missing Clerk Publishable Key');
 }
 
-const getCSSVariable = (variable: string) => {
-  if (typeof window !== 'undefined') {
-    return getComputedStyle(document.documentElement)
-      .getPropertyValue(variable)
-      .trim();
-  }
-  return '';
-};
+// Load Google Fonts via next/font and expose CSS variables
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sans',
+  weight: ['400', '500', '600', '700'],
+});
+
+const ebGaramond = EB_Garamond({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-serif',
+  weight: ['400', '600', '700'],
+});
+
+const firaCode = Fira_Code({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-mono',
+  weight: ['400', '600', '700'],
+});
 
 const customLocalization = {
   locale: 'es-ES',
-  applicationName: 'HorusAlert',
+  applicationName: 'USAL Alertas',
   signIn: {
     start: {
       title: 'Iniciar sesión',
@@ -73,67 +88,81 @@ const customLocalization = {
   dividerText: 'o',
 };
 
+// Theme-aware Clerk appearance using CSS variables
 const clerkAppearance = {
   elements: {
-    card: '!shadow-none !bg-transparent p-1',
-    rootBox: '!bg-transparent !shadow-none !w-full',
-    cardBox: '!shadow-none !bg-transparent !w-full',
-    footer: '!bg-transparent !shadow-none !w-full',
-    footerAction: '!bg-gray-50 !rounded-lg !p-4',
-    formContainer: '!shadow-none !w-full',
-    form: '!w-full',
-    formFieldInput: '!py-2.5 !px-3 !text-sm !w-full',
-    formButtonPrimary: '!py-2.5 !px-4 !text-sm !font-medium !w-full',
-    socialButtonsBlockButton: '!py-2.5 !px-4 !text-sm !w-full',
-    formFieldLabel: '!text-sm !font-medium',
-    footerActionText: '!text-sm',
-    footerActionLink: '!text-sm !font-semibold',
-    headerTitle: '!text-2xl !font-bold !text-left',
-    headerSubtitle: '!text-base !text-gray-600 !text-left',
-    header: '!text-left',
+    card: 'shadow-none! bg-transparent! p-1',
+    rootBox: 'bg-transparent! shadow-none! w-full!',
+    cardBox: 'shadow-none! bg-transparent! w-full!',
+    footer: 'bg-none! shadow-none! w-full!',
+    footerAction: 'bg-none! rounded-lg! p-4!',
+    formContainer: 'shadow-none! w-full!',
+    form: 'w-full!',
+    formFieldInput: 'py-2.5! px-3! text-sm! w-full!',
+    formButtonPrimary: 'py-2.5! px-4! text-sm! font-medium! w-full!',
+    socialButtonsBlockButton: 'py-2.5! px-4! text-sm! w-full!',
+    formFieldLabel: 'text-sm! font-medium!',
+    footerActionText: 'text-sm! text-muted-foreground!',
+    footerActionLink: 'text-sm! font-semibold! text-primary!',
+    headerTitle: 'text-2xl! font-bold! text-left! text-foreground!',
+    headerSubtitle: 'text-base! text-muted-foreground! text-left!',
+    header: 'text-left!',
+
   },
   layout: {
     socialButtonsPlacement: 'top' as const,
     socialButtonsVariant: 'blockButton' as const,
     showOptionalFields: false,
     logoPlacement: 'none' as const,
+    unsafe_disableDevelopmentModeWarnings: true,
   },
   variables: {
-    colorPrimary: getCSSVariable('--primary') || '#388E3C',
-    colorDanger: getCSSVariable('--destructive') || '#FF9800',
-    colorSuccess: getCSSVariable('--primary') || '#388E3C',
-    colorNeutral: getCSSVariable('--secondary') || '#616161',
-    colorText: getCSSVariable('--foreground') || '#212121',
-    colorTextSecondary: getCSSVariable('--muted-foreground') || '#616161',
-    colorInputBackground: getCSSVariable('--input') || '#F4F4F4',
-    colorInputText: getCSSVariable('--foreground') || '#212121',
-    borderRadius: getCSSVariable('--radius') || '0.5rem',
+    colorPrimary: 'var(--primary)',
+    colorDanger: 'var(--destructive)',
+    colorSuccess: 'var(--primary)',
+    colorText: 'var(--foreground)',
+    colorTextSecondary: 'var(--muted-foreground)',
+    colorInputBackground: 'var(--input)',
+    colorInputText: 'var(--foreground)',
+    borderRadius: 'var(--radius)',
     fontFamily: 'inherit',
     spacingUnit: '1rem',
   },
-};
+} as const;
 
 const localization = {
   ...esES,
   ...customLocalization,
 };
 
+export const metadata: Metadata = {
+  title: {
+    default: 'USAL Alertas',
+    template: '%s | USAL Alertas',
+  },
+  applicationName: 'USAL Alertas',
+  description: 'Monitoreo inteligente de seguridad para USAL',
+  icons: {
+    icon: '/images/icon.png',
+  },
+  manifest: '/manifest.json',
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <ClerkProvider
-      publishableKey={publishableKey}
-      appearance={clerkAppearance}
-      localization={localization}
-      signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
-      signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
-      signInFallbackRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL}
-      signUpFallbackRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL}
+    <html
+      lang="es"
+      suppressHydrationWarning
+      className={`${inter.variable} ${ebGaramond.variable} ${firaCode.variable}`}
     >
-      <html lang="es">
-        <body>
+      <body className="font-sans">
+        <ClerkProvider
+          appearance={clerkAppearance}
+          localization={localization}
+        >
           <ThemeProvider>{children}</ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
