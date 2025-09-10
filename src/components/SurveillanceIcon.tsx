@@ -12,8 +12,8 @@ export function SurveillanceIcon({
   width = 300,
   height = 220,
   className = "",
-  primaryColor = "#388E3C", // Updated to the Light Mode HorusAlert primary color
-  secondaryColor = "#212121", // Updated to the Light Mode HorusAlert text color
+  primaryColor = "#388E3C", // Updated to the Light Mode USAL Alertas primary color
+  secondaryColor = "#212121", // Updated to the Light Mode USAL Alertas text color
 }: SurveillanceIconProps) {
   return (
     <svg

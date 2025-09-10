@@ -1,16 +1,30 @@
 
 import { useState, useEffect, useRef } from "react";
-import { VideoIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Prediction } from "@/types/notifications";
+import { cn } from "@/lib/utils";
+
+type VideoVariant = "minimal" | "classic";
 
 interface VideoStreamProps {
   predictions?: Prediction[];
-  cam_index: number; // Cambiado de cameraId a cam_index
-  cameraName: string;
+  cam_index: number;
+  cameraName?: string;
   streamUrl: string;
+  className?: string;
+  variant?: VideoVariant;
+  showTimestamp?: boolean;
 }
 
-export function VideoStream({ predictions = [], cam_index, cameraName, streamUrl }: VideoStreamProps) {
+export function VideoStream({
+  predictions = [],
+  cam_index,
+  cameraName,
+  streamUrl,
+  className,
+  variant = "minimal",
+  showTimestamp = false,
+}: VideoStreamProps) {
   const [isStreamLoading, setIsStreamLoading] = useState(true);
   const [hasStreamError, setHasStreamError] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -43,21 +57,8 @@ export function VideoStream({ predictions = [], cam_index, cameraName, streamUrl
     setHasStreamError(true);
   };
 
-  return (
-    <div className="relative bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-xl border border-slate-200/50 dark:border-slate-700/50">
-      <div className="bg-gradient-to-r from-primary/20 to-accent/20 p-4">
-        <div className="flex items-center space-x-2">
-          <VideoIcon className="w-6 h-6 text-primary" />
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
-            Vista en Tiempo Real
-          </h2>
-        </div>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-          {cameraName}
-        </p>
-      </div>
-      
-      <div className="relative aspect-video bg-slate-100 dark:bg-slate-900">
+  const Container = (
+    <div className={cn("relative aspect-video overflow-hidden rounded-xl border bg-muted/30", className)}>
         {hasStreamError ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
             <div className="mb-4">
@@ -77,7 +78,7 @@ export function VideoStream({ predictions = [], cam_index, cameraName, streamUrl
         ) : (
           <>
             {isStreamLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-900">
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-100/60 dark:bg-slate-900/60">
                 <div className="flex flex-col items-center space-y-3">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -89,8 +90,8 @@ export function VideoStream({ predictions = [], cam_index, cameraName, streamUrl
             <img
               ref={imgRef}
               src={streamUrl}
-              alt={`Stream de ${cameraName}`}
-              className="w-full h-full object-cover"
+              alt={`Stream de ${cameraName ?? `Cámara ${cam_index + 1}`}`}
+              className="h-full w-full object-cover"
               onLoad={handleStreamLoad}
               onError={handleStreamError}
             />
@@ -117,17 +118,27 @@ export function VideoStream({ predictions = [], cam_index, cameraName, streamUrl
               </div>
             )}
             
-            {/* Overlay con información */}
-            <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-lg text-xs font-mono">
-              LIVE • {currentTime.toLocaleString()}
-            </div>
-            
-            <div className="absolute top-3 right-3 bg-green-500/90 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold">
-              🔴 EN VIVO
+            {/* Overlay minimal */}
+            <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-black/60 px-2 py-0.5 text-[11px] text-white">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+              <span>LIVE</span>
+              {showTimestamp && <span className="opacity-80">• {currentTime.toLocaleTimeString()}</span>}
             </div>
           </>
         )}
       </div>
-    </div>
   );
+
+  if (variant === "classic") {
+    return (
+      <div className="relative rounded-2xl border bg-background shadow-sm">
+        <div className="p-3">
+          <div className="text-sm font-medium">{cameraName ?? `Cámara ${cam_index + 1}`}</div>
+        </div>
+        {Container}
+      </div>
+    );
+  }
+
+  return Container;
 }
