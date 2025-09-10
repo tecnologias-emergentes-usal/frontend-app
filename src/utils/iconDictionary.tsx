@@ -49,7 +49,7 @@ export const iconDictionary: Record<IconName, React.ComponentType<any>> = {
   search: MagnifyingGlassIcon,
 };
 
-export const getIcon = (iconName: string, className: string = "w-6 h-6"): React.ReactElement => {
+export const getIcon = (iconName: string, className: string = "w-6 h-6"): React.ReactElement<any> => {
   const IconComponent = iconDictionary[iconName as IconName];
   
   if (!IconComponent) {
