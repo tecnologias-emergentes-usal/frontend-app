@@ -7,7 +7,7 @@ export function BarriersPanel({
   items,
   connectionNote,
 }: {
-  items: Array<{ name: string; place: string; status: "open" | "closed" | "ok" }>
+  items: Array<{ name: string; place: string; status: "open" | "closed" | "opening" | "closing" | "ok" }>
   connectionNote?: string
 }) {
   return (
@@ -31,4 +31,3 @@ export function BarriersPanel({
     </div>
   )
 }
-

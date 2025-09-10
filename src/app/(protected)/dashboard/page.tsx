@@ -10,6 +10,7 @@ import { CamerasGrid } from '@/components/dashboard/cameras-grid';
 import { ParkingMap } from '@/components/dashboard/parking-map';
 import { BarriersPanel } from '@/components/dashboard/barriers-panel';
 import { timeAgo } from '@/lib/time';
+import { CAMERAS } from '@/config/cameras';
 
 type CamStatus = 'connected' | 'disconnected' | 'reconnecting' | 'connecting';
 
@@ -56,19 +57,22 @@ export default function Page() {
   const operativeBarriers = Object.keys(lastActions).length;
 
   const stats = [
-    { label: 'Ocupación', value: `${occupancyPct}%`, Icon: Car },
+    { label: 'Ocupación', value: `${occupancyPct}%`, Icon: Car, variant: 'occupancy' as const, percent: occupancyPct },
     { label: 'Cámaras Activas', value: `${activeCams}/${env.CAMERA_COUNT}`, Icon: Camera },
     { label: 'Barreras Operativas', value: `${operativeBarriers}/${env.CAMERA_COUNT}`, Icon: ShieldCheck },
     { label: 'Espacios Disponibles', value: `${availableTotal}`, Icon: Activity },
   ] as const;
 
-  // Cameras grid derived from camera count
-  const cameraTiles = Array.from({ length: env.CAMERA_COUNT }).map((_, i) => ({
-    name: `Cámara ${i + 1}`,
-    zone: `Zona ${String.fromCharCode(65 + i)}`,
-    status: getCamStatus(i) as CamStatus,
-    lastSeen: lastUpdateAt[i] ? timeAgo(lastUpdateAt[i]) : '—',
-  }));
+  // Cameras grid derived from configuration (cameras.ts)
+  const cameraTiles = CAMERAS
+    .filter((c) => c.index < env.CAMERA_COUNT)
+    .map((c) => ({
+      index: c.index,
+      name: c.title,
+      zone: c.subtitle,
+      status: getCamStatus(c.index) as CamStatus,
+      lastSeen: lastUpdateAt[c.index] ? timeAgo(lastUpdateAt[c.index]) : '—',
+    }));
 
   // Parking map: simple distribution based on totalOccupied across totalParkingSpaces
   const totalSlots = Math.max(totalParkingSpaces, 1);
@@ -76,19 +80,38 @@ export default function Page() {
     Array.from({ length: totalSlots }, (_, idx) => idx + 1).slice(0, totalOccupied)
   );
 
-  // Barriers list derived from cameras
-  const barriers = Array.from({ length: env.CAMERA_COUNT }).map((_, i) => ({
-    name: i === 0 ? 'Barrera Principal' : i === 1 ? 'Barrera Salida' : `Barrera ${i + 1}`,
-    place: i === 0 ? 'Entrada' : i === 1 ? 'Salida' : `Zona ${String.fromCharCode(65 + i)}`,
-    status: lastActions[i]?.barrier_state === 'abrir' ? ('open' as const) : ('closed' as const),
-  }));
+  // Barriers list derived from cameras with 4 Spanish states
+  const barriers = Array.from({ length: env.CAMERA_COUNT }).map((_, i) => {
+    const info = lastActions[i];
+    let status: 'open' | 'closed' | 'opening' | 'closing' = 'closed';
+    if (info) {
+      if (info.event === 'command_sent') {
+        status = info.barrier_action === 'abrir' ? 'opening' : 'closing';
+      } else {
+        status = info.barrier_state === 'abrir' ? 'open' : 'closed';
+      }
+    }
+    return {
+      name: i === 0 ? 'Barrera Principal' : i === 1 ? 'Barrera Salida' : `Barrera ${i + 1}`,
+      place: i === 0 ? 'Entrada' : i === 1 ? 'Salida' : `Zona ${String.fromCharCode(65 + i)}`,
+      status,
+    } as const;
+  });
 
   return (
     <div className="flex flex-col gap-4">
       {/* Stat cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((s) => (
-          <StatCard key={s.label} label={s.label} value={s.value} Icon={s.Icon} />
+          <StatCard
+            key={s.label}
+            label={s.label}
+            value={s.value}
+            Icon={s.Icon}
+            // occupancy visuals
+            variant={(s as any).variant}
+            percent={(s as any).percent}
+          />
         ))}
       </div>
 

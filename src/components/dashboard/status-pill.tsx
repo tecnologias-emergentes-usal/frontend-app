@@ -9,6 +9,8 @@ type Status =
   | "connecting"
   | "open"
   | "closed"
+  | "opening"
+  | "closing"
   | "ok"
 
 export function StatusPill({ status, className = "" }: { status: Status; className?: string }) {
@@ -17,8 +19,11 @@ export function StatusPill({ status, className = "" }: { status: Status; classNa
     disconnected: { label: "disconnected", cls: "bg-red-600 text-white" },
     reconnecting: { label: "reconnecting", cls: "bg-yellow-500 text-black" },
     connecting: { label: "connecting", cls: "bg-yellow-500 text-black" },
-    open: { label: "open", cls: "bg-green-600 text-white" },
-    closed: { label: "closed", cls: "bg-zinc-600 text-white" },
+    // Barrera (mostrar en español)
+    open: { label: "abierta", cls: "bg-green-600 text-white" },
+    closed: { label: "cerrada", cls: "bg-zinc-600 text-white" },
+    opening: { label: "abriendo", cls: "bg-yellow-500 text-black" },
+    closing: { label: "cerrando", cls: "bg-yellow-500 text-black" },
     ok: { label: "ok", cls: "bg-green-600 text-white" },
   }
 

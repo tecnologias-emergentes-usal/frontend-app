@@ -158,7 +158,22 @@ export default function CameraPage({ params }: { params: { id: string } | Promis
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <CardStat icon={Gauge} label="Ocupación" value={`${pct}%`} />
+        {(() => {
+          const occLabel = pct <= 20 ? 'Vacío' : pct <= 60 ? 'Medio' : pct <= 85 ? 'Alto' : 'Crítico';
+          const occClass = pct >= 90 ? 'text-red-600' : pct >= 70 ? 'text-amber-600' : 'text-emerald-600';
+          return (
+            <CardStat
+              icon={Gauge}
+              label="Ocupación"
+              value={
+                <>
+                  <span>{pct}%</span>
+                  <span className={`ml-2 text-xs font-semibold ${occClass}`}>{occLabel}</span>
+                </>
+              }
+            />
+          )
+        })()}
         <CardStat icon={Activity} label="Ocupados" value={`${occupied}`} />
         <CardStat icon={Activity} label="Disponibles" value={`${available}`} />
         {(() => {
@@ -265,7 +280,7 @@ function CardStat({
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
-  value: string;
+  value: React.ReactNode;
   valueClassName?: string;
 }) {
   return (
@@ -274,7 +289,7 @@ function CardStat({
         <div className="text-sm text-muted-foreground">{label}</div>
         <Icon className="h-5 w-5 text-muted-foreground" />
       </div>
-      <div className={"mt-2 text-2xl font-semibold " + (valueClassName ?? "")}>{value}</div>
+      <div className={"mt-2 text-2xl font-semibold flex items-baseline gap-2 " + (valueClassName ?? "")}>{value}</div>
     </div>
   );
 }
