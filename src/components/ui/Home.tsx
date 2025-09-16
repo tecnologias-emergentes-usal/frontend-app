@@ -18,12 +18,12 @@ import { useBarrier } from "@/context/BarrierContext";
 import { VideoStream } from "@/components/VideoStream";
 import { env } from "@/lib/env";
 
-interface Props {
+/*interface Props {
   onTheme: (theme: "ios" | "material") => void;
   theme: "ios" | "material";
-}
+}*/
 
-export function Home(props: Props) {
+export function Home() {
   const [_, setDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   

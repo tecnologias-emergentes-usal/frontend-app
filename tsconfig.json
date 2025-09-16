@@ -9,6 +9,7 @@
     ],
     "module": "ESNext",
     "skipLibCheck": true,
+    "strictNullChecks": true,
     /* Next.js mode */
     "moduleResolution": "node",
     "resolveJsonModule": true,

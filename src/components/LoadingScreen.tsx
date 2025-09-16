@@ -1,18 +1,10 @@
 import { motion } from 'framer-motion';
 import logoImage from '../assets/logo.png';
+import Image from "next/image"; 
 
 const rectangleVariants = {
-  initial: {
-    x: '0%',
-  },
-  animate: (i: number) => ({
-    x: '100%',
-    transition: {
-      delay: 0.1 * i, // Staggered delay for each rectangle
-      duration: 0.5,
-      ease: 'easeIn',
-    },
-  }),
+  initial: { x: "0%" },
+  animate: { x: "100%" },
 };
 
 export const LoadingScreen = () => {
@@ -31,10 +23,16 @@ export const LoadingScreen = () => {
           animate="animate"
           custom={i}
           variants={rectangleVariants}
+          transition={{
+            delay: 0.1 * i,
+            duration: 0.5,
+            ease: "easeInOut",
+          }}
           style={{ top: `${i * 20}%` }}
+          
         >
           {i === 2 && (
-            <img
+            <Image
               src={logoImage}
               alt="USAL Alert Logo"
               className="h-32 w-32 object-contain"

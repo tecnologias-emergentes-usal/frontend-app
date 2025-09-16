@@ -48,7 +48,7 @@ export function NavMain({
           return (
             <Collapsible key={item.title} asChild defaultOpen={defaultOpen}>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title} isActive={topActive}>
+              <SidebarMenuButton asChild tooltip={item.title} isActive={!!topActive}>
                 <Link href={item.url}>
                   <item.icon />
                   <span>{item.title}</span>
@@ -68,7 +68,7 @@ export function NavMain({
                         const subActive = subItem.url && subItem.url !== "#" && pathname === subItem.url
                         return (
                           <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton asChild isActive={subActive}>
+                            <SidebarMenuSubButton asChild isActive={!!subActive}>
                               <Link href={subItem.url}>
                                 <span>{subItem.title}</span>
                               </Link>

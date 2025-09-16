@@ -11,9 +11,9 @@ import { VideoStream } from '@/components/VideoStream';
 import { getCameraById, getCameraByIndex } from '@/config/cameras';
 import { AnimatedList } from '@/components/magicui/animated-list';
 
-export default function CameraPage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
+export default function CameraPage({ params }: any) {
+  const maybePromise: any = params;
   // Buscar por ID de diccionario maestro; si no existe, intentar por índice numérico.
-  const maybePromise: any = params as any;
   const resolvedParams = typeof maybePromise?.then === 'function' ? usePromise(maybePromise) : maybePromise;
   const paramId = String(resolvedParams?.id ?? '');
   const camFromId = getCameraById(paramId);
@@ -39,13 +39,13 @@ export default function CameraPage({ params }: { params: { id: string } | Promis
   const barrierOpen = barrier?.barrier_state === 'abrir';
   const meta = camFromId ?? getCameraByIndex(camIndex) ?? null;
 
-  const classCounts = React.useMemo(() => {
+  /*const classCounts = React.useMemo(() => {
     const map = new Map<string, number>();
     for (const p of preds) {
       map.set(p.class_name, (map.get(p.class_name) || 0) + 1);
     }
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
-  }, [preds]);
+  }, [preds]);*/
 
   // Etiquetas amigables para clases detectadas
   const getFriendlyLabel = React.useCallback((raw: string) => {
