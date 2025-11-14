@@ -40,11 +40,37 @@ export function VideoStream({
     return () => clearInterval(timer);
   }, []);
 
+  // Detectar cuando el stream está listo
+  useEffect(() => {
+    // Timeout para ocultar el loading después de un tiempo razonable
+    const loadingTimeout = setTimeout(() => {
+      setIsStreamLoading(false);
+    }, 2000);
+
+    // Intentar detectar cuando la imagen se carga
+    const checkImageLoad = setInterval(() => {
+      if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+        setIsStreamLoading(false);
+        setHasStreamError(false);
+        setImageDimensions({
+          width: imgRef.current.naturalWidth,
+          height: imgRef.current.naturalHeight
+        });
+        clearInterval(checkImageLoad);
+        clearTimeout(loadingTimeout);
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(loadingTimeout);
+      clearInterval(checkImageLoad);
+    };
+  }, [streamUrl]);
+
   const handleStreamLoad = () => {
-    setIsStreamLoading(false);
-    setHasStreamError(false);
-    
-    if (imgRef.current) {
+    if (imgRef.current && imgRef.current.naturalWidth > 0) {
+      setIsStreamLoading(false);
+      setHasStreamError(false);
       setImageDimensions({
         width: imgRef.current.naturalWidth,
         height: imgRef.current.naturalHeight
